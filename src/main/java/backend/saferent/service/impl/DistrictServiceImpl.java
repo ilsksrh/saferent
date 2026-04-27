@@ -6,6 +6,7 @@ import backend.saferent.dto.response.district.DistrictResponse;
 import backend.saferent.entity.District;
 import backend.saferent.entity.DistrictRating;
 import backend.saferent.entity.User;
+import backend.saferent.exception.NotFoundException;
 import backend.saferent.mapper.DistrictMapper;
 import backend.saferent.repository.DistrictRatingRepository;
 import backend.saferent.repository.DistrictRepository;
@@ -50,29 +51,26 @@ public class DistrictServiceImpl implements DistrictService {
     @Override
     public DistrictResponse getById(UUID id) {
         District district = districtRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Район не найден"));
+                .orElseThrow(() -> new NotFoundException("Район не найден"));
         return districtMapper.toResponse(district);
     }
 
     @Override
     public void rateDistrict(DistrictRatingRequest request, UUID userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("Пользователь не найден"));
+                .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
 
         District district = districtRepository.findById(request.getDistrictId())
-                .orElseThrow(() -> new RuntimeException("Район не найден"));
+                .orElseThrow(() -> new NotFoundException("Район не найден"));
 
-        // Проверяем, есть ли уже оценка
         DistrictRating existing = districtRatingRepository.findByDistrictAndUser(district, user)
                 .orElse(null);
 
         if (existing != null) {
-            // Обновляем
             existing.setSafetyRating(request.getSafetyRating());
             existing.setComfortRating(request.getComfortRating());
             districtRatingRepository.save(existing);
         } else {
-            // Создаём новую
             DistrictRating rating = DistrictRating.builder()
                     .district(district)
                     .user(user)
@@ -82,6 +80,5 @@ public class DistrictServiceImpl implements DistrictService {
             districtRatingRepository.save(rating);
         }
 
-        // TODO: пересчитать district.safetyScore и comfortScore (добавим позже)
     }
 }

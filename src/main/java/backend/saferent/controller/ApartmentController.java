@@ -2,11 +2,11 @@ package backend.saferent.controller;
 
 import backend.saferent.dto.request.apartment.CreateApartmentRequest;
 import backend.saferent.dto.request.apartment.UpdateApartmentRequest;
-import backend.saferent.dto.response.ApartmentResponse;
 import backend.saferent.service.ApartmentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import backend.saferent.dto.response.apartment.ApartmentResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -57,5 +57,11 @@ public class ApartmentController {
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
         apartmentService.deleteApartment(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Верифицировать квартиру (admin/landlord)")
+    @PostMapping("/{id}/verify")
+    public ResponseEntity<ApartmentResponse> verify(@PathVariable UUID id) {
+        return ResponseEntity.ok(apartmentService.verifyApartment(id));
     }
 }

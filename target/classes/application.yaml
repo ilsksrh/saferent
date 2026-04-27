@@ -21,3 +21,11 @@ spring:
 #  level:
 #    org.springframework: INFO
 #    kz.saferent: DEBUG
+
+jwt:
+  secret: saferent_super_secret_key_must_be_32_chars_min
+  expiration: 86400000  # 24 часа в мс
+
+ai:
+  service:
+    url: http://localhost:8000

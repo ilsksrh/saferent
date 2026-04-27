@@ -45,12 +45,13 @@ public class User extends AbstractEntity {
     @Size(max = 50)
     private String loginProvider;
 
-    // НОВАЯ СВЯЗЬ: все квартиры, которые сдаёт этот пользователь (если он LANDLORD)
     @OneToMany(mappedBy = "landlord", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Apartment> apartments = new ArrayList<>();
 
-    // Хелпер-метод: удобно проверять роль
     public boolean isLandlord() {
         return preferredRole == PreferredRole.LANDLORD;
     }
+
+    @Column
+    private String passwordHash;
 }

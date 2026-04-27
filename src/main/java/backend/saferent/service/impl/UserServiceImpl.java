@@ -4,6 +4,7 @@ import backend.saferent.dto.request.user.CreateUserRequest;
 import backend.saferent.dto.request.user.UpdateUserRequest;
 import backend.saferent.dto.response.user.UserResponse;
 import backend.saferent.entity.User;
+import backend.saferent.exception.NotFoundException;
 import backend.saferent.mapper.UserMapper;
 import backend.saferent.repository.UserRepository;
 import backend.saferent.service.UserService;
@@ -69,7 +70,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getUserEntityOrThrow(UUID id) {
         return userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Пользователь не найден: " + id));
+                .orElseThrow(()->new NotFoundException("User not found: " + id));
     }
 
     @Override

@@ -4,6 +4,7 @@ import backend.saferent.dto.request.district.DistrictCreateRequest;
 import backend.saferent.dto.request.district.DistrictRatingRequest;
 import backend.saferent.dto.response.district.DistrictResponse;
 import backend.saferent.service.DistrictService;
+import backend.saferent.util.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -21,6 +22,7 @@ import java.util.UUID;
 public class DistrictController {
 
     private final DistrictService districtService;
+    private final SecurityUtils securityUtils;
 
     @Operation(summary = "Создать новый район (для админа)")
     @PostMapping
@@ -44,9 +46,8 @@ public class DistrictController {
     @Operation(summary = "Оставить оценку району")
     @PostMapping("/rate")
     public ResponseEntity<String> rate(
-            @RequestBody DistrictRatingRequest request,
-            @RequestParam UUID userId) {  // в будущем — из JWT
-
+            @Valid @RequestBody DistrictRatingRequest request) {
+        UUID userId = securityUtils.getCurrentUserId();
         districtService.rateDistrict(request, userId);
         return ResponseEntity.ok("Оценка сохранена");
     }

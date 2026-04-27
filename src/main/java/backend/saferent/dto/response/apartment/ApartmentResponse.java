@@ -1,4 +1,4 @@
-package backend.saferent.dto.response;
+package backend.saferent.dto.response.apartment;
 
 import backend.saferent.entity.enums.ApartmentStatus;
 import lombok.AllArgsConstructor;
@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -32,4 +33,5 @@ public class ApartmentResponse {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime deletedAt;
+    private List<String> photoUrls;
 }

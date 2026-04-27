@@ -2,11 +2,12 @@ package backend.saferent.service.impl;
 
 import backend.saferent.dto.request.apartment.CreateApartmentRequest;
 import backend.saferent.dto.request.apartment.UpdateApartmentRequest;
-import backend.saferent.dto.response.ApartmentResponse;
+import backend.saferent.dto.response.apartment.ApartmentResponse;
 import backend.saferent.entity.Apartment;
 import backend.saferent.entity.District;
 import backend.saferent.entity.User;
 import backend.saferent.entity.enums.ApartmentStatus;
+import backend.saferent.exception.NotFoundException;
 import backend.saferent.mapper.ApartmentMapper;
 import backend.saferent.repository.ApartmentRepository;
 import backend.saferent.repository.DistrictRepository;
@@ -32,10 +33,10 @@ public class ApartmentServiceImpl implements ApartmentService {
     @Override
     public ApartmentResponse createApartment(CreateApartmentRequest request) {
         User landlord = userRepository.findById(request.getLandlordId())
-                .orElseThrow(() -> new RuntimeException("Арендодатель не найден"));
+                .orElseThrow(() -> new NotFoundException("Арендодатель не найден"));
 
         District district = districtRepository.findById(request.getDistrictId())
-                .orElseThrow(() -> new RuntimeException("Район не найден"));
+                .orElseThrow(() -> new NotFoundException("Район не найден"));
 
         Apartment apartment = apartmentMapper.toEntity(request, landlord, district);
         apartment = apartmentRepository.save(apartment);
@@ -46,7 +47,7 @@ public class ApartmentServiceImpl implements ApartmentService {
     @Override
     public ApartmentResponse getById(UUID id) {
         Apartment apartment = apartmentRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Квартира не найдена"));
+                .orElseThrow(() -> new NotFoundException("Квартира не найдена"));
         return apartmentMapper.toResponse(apartment);
     }
 
@@ -69,7 +70,7 @@ public class ApartmentServiceImpl implements ApartmentService {
     @Override
     public ApartmentResponse updateApartment(UUID id, UpdateApartmentRequest request) {
         Apartment apartment = apartmentRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Квартира не найдена"));
+                .orElseThrow(() -> new NotFoundException("Квартира не найдена"));
 
         apartmentMapper.updateEntity(apartment, request);
         apartment = apartmentRepository.save(apartment);
@@ -80,10 +81,18 @@ public class ApartmentServiceImpl implements ApartmentService {
     @Override
     public void deleteApartment(UUID id) {
         Apartment apartment = apartmentRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Квартира не найдена"));
+                .orElseThrow(() -> new NotFoundException("Квартира не найдена" + id));
 
         apartment.setDeletedAt(LocalDateTime.now());
         apartment.setStatus(ApartmentStatus.ARCHIVED);
         apartmentRepository.save(apartment);
+    }
+
+    @Override
+    public ApartmentResponse verifyApartment(UUID id) {
+        Apartment apartment = apartmentRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Apartment not found"));
+        apartment.setVerified(true);
+        return apartmentMapper.toResponse(apartmentRepository.save(apartment));
     }
 }

@@ -4,6 +4,7 @@ import backend.saferent.dto.response.user.LandlordProfileResponse;
 import backend.saferent.dto.response.user.LandlordApartmentSummary;
 import backend.saferent.entity.User;
 import backend.saferent.entity.enums.PreferredRole;
+import backend.saferent.exception.NotFoundException;
 import backend.saferent.mapper.LandlordMapper;
 import backend.saferent.repository.UserRepository;
 import backend.saferent.service.LandlordService;
@@ -24,7 +25,7 @@ public class LandlordServiceImpl implements LandlordService {
     @Override
     public LandlordProfileResponse getLandlordProfile(UUID userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("Пользователь не найден"));
+                .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
 
         if (!user.isLandlord()) {
             throw new IllegalStateException("Пользователь не является арендодателем");
@@ -36,7 +37,7 @@ public class LandlordServiceImpl implements LandlordService {
     @Override
     public List<LandlordApartmentSummary> getLandlordApartments(UUID userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("Пользователь не найден"));
+                .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
 
         return user.getApartments().stream()
                 .map(landlordMapper::toApartmentSummary)
@@ -46,7 +47,7 @@ public class LandlordServiceImpl implements LandlordService {
     @Override
     public void setUserAsLandlord(UUID userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("Пользователь не найден"));
+                .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
 
         if (user.getPreferredRole() == PreferredRole.LANDLORD) {
             throw new IllegalStateException("Пользователь уже арендодатель");

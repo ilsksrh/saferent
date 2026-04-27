@@ -2,15 +2,24 @@ package backend.saferent.mapper;
 
 import backend.saferent.dto.request.apartment.CreateApartmentRequest;
 import backend.saferent.dto.request.apartment.UpdateApartmentRequest;
-import backend.saferent.dto.response.ApartmentResponse;
+import backend.saferent.dto.response.apartment.ApartmentResponse;
 import backend.saferent.entity.Apartment;
+import backend.saferent.entity.ApartmentPhoto;
 import backend.saferent.entity.District;
 import backend.saferent.entity.User;
 import backend.saferent.entity.enums.ApartmentStatus;
+import backend.saferent.repository.ApartmentPhotoRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Component
+@RequiredArgsConstructor
 public class ApartmentMapper {
+
+    private final ApartmentPhotoRepository apartmentPhotoRepository;
 
     public Apartment toEntity(CreateApartmentRequest request, User landlord, District district) {
         return Apartment.builder()
@@ -42,6 +51,15 @@ public class ApartmentMapper {
     }
 
     public ApartmentResponse toResponse(Apartment apartment) {
+        List<String> photoUrls = List.of();
+
+        if(apartmentPhotoRepository != null && apartment.getId() != null) {
+            photoUrls = apartmentPhotoRepository.findByApartment(apartment)
+                    .stream()
+                    .map(ApartmentPhoto::getUrl)
+                    .collect(Collectors.toList());
+        }
+
         return ApartmentResponse.builder()
                 .id(apartment.getId())
                 .landlordId(apartment.getLandlord().getId())
@@ -50,6 +68,7 @@ public class ApartmentMapper {
                 .description(apartment.getDescription())
                 .address(apartment.getAddress())
                 .price(apartment.getPrice())
+                .photoUrls(photoUrls)
                 .area(apartment.getArea())
                 .rooms(apartment.getRooms())
                 .availableFrom(apartment.getAvailableFrom())

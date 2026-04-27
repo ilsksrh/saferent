@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: saferent_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: sara1234
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  ai-service:
+    build: ./ai_service
+    ports:
+      - "8000:8000"
+
+  backend:
+    build: .
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/saferent_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: sara1234
+      JWT_SECRET: saferent_super_secret_key_must_be_32_chars_min
+
+volumes:
+  postgres_data:

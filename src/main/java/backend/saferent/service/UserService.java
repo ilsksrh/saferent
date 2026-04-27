@@ -21,7 +21,7 @@ public interface UserService {
 
     void updateLastLogin(UUID id);
 
-    User getUserEntityOrThrow(UUID id); // для внутреннего использования
+    User getUserEntityOrThrow(UUID id);
 
     boolean existsByPhone(String phone);
 }

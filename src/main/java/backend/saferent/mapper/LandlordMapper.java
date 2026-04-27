@@ -30,13 +30,13 @@ public class LandlordMapper {
     }
 
     public LandlordApartmentSummary toApartmentSummary(Apartment apartment) {
-        return new LandlordApartmentSummary();
-        // Заполни поля по необходимости:
-        // .id(apartment.getId())
-        // .title(apartment.getTitle())
-        // .address(apartment.getAddress())
-        // .price(apartment.getPrice())
-        // .status(apartment.getStatus())
-        // .createdAt(apartment.getCreatedAt())
+        LandlordApartmentSummary summary = new LandlordApartmentSummary();
+        summary.setId(apartment.getId());
+        summary.setTitle(apartment.getTitle());
+        summary.setAddress(apartment.getAddress());
+        summary.setPrice(apartment.getPrice());
+        summary.setStatus(apartment.getStatus());
+        summary.setCreatedAt(apartment.getCreatedAt());
+        return summary;
     }
 }

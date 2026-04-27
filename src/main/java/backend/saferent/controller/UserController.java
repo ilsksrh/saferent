@@ -4,6 +4,7 @@ import backend.saferent.dto.request.user.CreateUserRequest;
 import backend.saferent.dto.request.user.UpdateUserRequest;
 import backend.saferent.dto.response.user.UserResponse;
 import backend.saferent.service.UserService;
+import backend.saferent.util.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,16 @@ import java.util.UUID;
 public class UserController {
 
     private final UserService userService;
+    private final SecurityUtils securityUtils;
+
+    @Operation(summary = "Получить текущего пользователя из токена")
+    @GetMapping("/me")
+    public ResponseEntity<UserResponse> getMe() {
+        UUID userId = securityUtils.getCurrentUserId();
+        return userService.findById(userId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
 
     @Operation(summary = "Регистрация нового пользователя")
     @PostMapping("/register")
