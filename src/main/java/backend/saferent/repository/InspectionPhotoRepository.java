@@ -10,14 +10,11 @@ import java.util.UUID;
 
 public interface InspectionPhotoRepository extends JpaRepository<InspectionPhoto, UUID> {
 
-    // Все фото по договору и типу
     List<InspectionPhoto> findByContractAndType(
             Contract contract, InspectionType type
     );
 
-    // Все фото по договору
     List<InspectionPhoto> findByContractOrderByCreatedAtAsc(Contract contract);
 
-    // Есть ли уже фото при заезде
     boolean existsByContractAndType(Contract contract, InspectionType type);
 }

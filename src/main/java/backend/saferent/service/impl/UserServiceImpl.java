@@ -4,9 +4,11 @@ import backend.saferent.dto.request.user.CreateUserRequest;
 import backend.saferent.dto.request.user.UpdateUserRequest;
 import backend.saferent.dto.response.user.UserResponse;
 import backend.saferent.entity.User;
+import backend.saferent.exception.BadRequestException;
 import backend.saferent.exception.NotFoundException;
 import backend.saferent.mapper.UserMapper;
 import backend.saferent.repository.UserRepository;
+import backend.saferent.service.OtpService;
 import backend.saferent.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,14 +22,14 @@ import java.util.UUID;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
-    private final UserMapper userMapper;
+    private final UserMapper     userMapper;
+    private final OtpService     otpService;
 
     @Override
     public UserResponse createUser(CreateUserRequest request) {
         if (userRepository.existsByPhone(request.getPhone())) {
             throw new IllegalArgumentException("Such user already exists");
         }
-
         User user = userMapper.toEntity(request);
         user = userRepository.save(user);
         return userMapper.toResponse(user);
@@ -35,14 +37,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Optional<UserResponse> findById(UUID id) {
-        return userRepository.findById(id)
-                .map(userMapper::toResponse);
+        return userRepository.findById(id).map(userMapper::toResponse);
     }
 
     @Override
     public Optional<UserResponse> findByPhone(String phone) {
-        return userRepository.findByPhone(phone)
-                .map(userMapper::toResponse);
+        return userRepository.findByPhone(phone).map(userMapper::toResponse);
     }
 
     @Override
@@ -54,8 +54,28 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void verifyUser(UUID id) {
+    public void requestOtp(UUID id) {
         User user = getUserEntityOrThrow(id);
+        if (user.getEmail() == null || user.getEmail().isBlank()) {
+            throw new BadRequestException(
+                    "Email not set. Update your profile with an email address first."
+            );
+        }
+        otpService.sendOtp(id, user.getEmail());
+    }
+
+    @Override
+    public void verifyUser(UUID id, String code) {
+        User user = getUserEntityOrThrow(id);
+        if (user.isVerified()) {
+            return;
+        }
+        if (code == null || code.isBlank()) {
+            throw new BadRequestException("Verification code is required");
+        }
+        if (!otpService.verifyOtp(id, code)) {
+            throw new BadRequestException("Invalid or expired verification code");
+        }
         user.setVerified(true);
         userRepository.save(user);
     }
@@ -70,7 +90,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getUserEntityOrThrow(UUID id) {
         return userRepository.findById(id)
-                .orElseThrow(()->new NotFoundException("User not found: " + id));
+                .orElseThrow(() -> new NotFoundException("User not found: " + id));
     }
 
     @Override

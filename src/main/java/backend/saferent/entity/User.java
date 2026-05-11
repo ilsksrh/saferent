@@ -24,6 +24,10 @@ public class User extends AbstractEntity {
     @Column(unique = true, nullable = false)
     private String phone;
 
+    @Size(max = 100)
+    @Column(unique = true)
+    private String email;
+
     @Enumerated(EnumType.STRING)
     private PreferredRole preferredRole;
 

@@ -17,22 +17,10 @@ import java.util.UUID;
 public class InspectionCompareResponse {
 
     private UUID contractId;
-
-    // Средний SSIM по всем комнатам
     private Double averageSsimScore;
-
-    // Результат по каждой комнате
     private Map<String, Double> roomScores;
-
-    // Итоговый вердикт
     private InspectionResult result;
-
-    // Что делать с депозитом
     private String depositDecision;
-
-    // Список комнат с повреждениями
     private List<String> damagedRooms;
-
-    // Человекочитаемый вывод
     private String summary;
 }

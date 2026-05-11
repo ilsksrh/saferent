@@ -52,12 +52,6 @@ public class InspectionServiceImpl implements InspectionService {
             );
         }
 
-        if (contract.getStatus() != ContractStatus.ACTIVE) {
-            throw new BadRequestException(
-                    "Contract must be ACTIVE to upload check-in photos"
-            );
-        }
-
         InspectionPhoto photo = InspectionPhoto.builder()
                 .contract(contract)
                 .type(InspectionType.CHECKIN)
@@ -198,6 +192,7 @@ public class InspectionServiceImpl implements InspectionService {
                 .average()
                 .orElse(1.0);
 
+        String formattedScore = String.format("%.3f", avgScore);
         InspectionResult result;
         String decision;
         String summary;
@@ -207,8 +202,7 @@ public class InspectionServiceImpl implements InspectionService {
             decision = "RETURN_TO_TENANT";
             summary  = "No significant damage detected. " +
                     "Deposit will be fully returned to tenant. " +
-                    "SSIM score: " + String.format("%.3f", avgScore);
-
+                    "SSIM score: " + formattedScore;
             notifyDepositReturn(contract, true);
 
         } else if (avgScore >= SSIM_MINOR_DAMAGE) {
@@ -216,8 +210,7 @@ public class InspectionServiceImpl implements InspectionService {
             decision = "MANUAL_REVIEW";
             summary  = "Minor changes detected in " + damagedRooms +
                     ". Human moderator will review and decide. " +
-                    "SSIM score: " + String.format("%.3f", avgScore);
-
+                    "SSIM score: " + formattedScore;
             notifyManualReview(contract, avgScore, damagedRooms);
 
         } else {
@@ -225,8 +218,7 @@ public class InspectionServiceImpl implements InspectionService {
             decision = "TRANSFER_TO_LANDLORD";
             summary  = "Significant damage detected in " + damagedRooms +
                     ". Deposit will be transferred to landlord. " +
-                    "SSIM score: " + String.format("%.3f", avgScore);
-
+                    "SSIM score: " + formattedScore;
             notifyDepositReturn(contract, false);
         }
 

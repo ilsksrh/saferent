@@ -12,13 +12,10 @@ import java.util.UUID;
 
 public interface PaymentRepository extends JpaRepository<Payment, UUID> {
 
-    // Все платежи по договору
     List<Payment> findByContractOrderByCreatedAtDesc(Contract contract);
 
-    // Найти конкретный тип платежа по договору
     Optional<Payment> findByContractAndType(Contract contract, PaymentType type);
 
-    // Проверить оплачен ли депозит
     boolean existsByContractAndTypeAndStatus(
             Contract contract, PaymentType type, PaymentStatus status
     );

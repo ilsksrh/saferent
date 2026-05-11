@@ -12,16 +12,12 @@ import java.util.UUID;
 
 public interface NotificationRepository extends JpaRepository<Notification, UUID> {
 
-    // Все уведомления пользователя (новые сверху)
     List<Notification> findByUserOrderByCreatedAtDesc(User user);
 
-    // Непрочитанные
     List<Notification> findByUserAndIsReadFalseOrderByCreatedAtDesc(User user);
 
-    // Количество непрочитанных
     int countByUserAndIsReadFalse(User user);
 
-    // Пометить все прочитанными одним запросом
     @Modifying
     @Query("UPDATE Notification n SET n.isRead = true " +
             "WHERE n.user = :user AND n.isRead = false")

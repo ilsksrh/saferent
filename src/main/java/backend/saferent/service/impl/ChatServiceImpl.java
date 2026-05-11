@@ -90,10 +90,6 @@ public class ChatServiceImpl implements ChatService {
                 .collect(Collectors.toList());
     }
 
-    // ─── Отправить сообщение ─────────────────────────────────────────────
-
-    // ChatServiceImpl.java — только метод sendMessage
-
     @Override
     @Transactional
     public MessageResponse sendMessage(UUID chatId,

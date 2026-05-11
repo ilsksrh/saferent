@@ -24,20 +24,20 @@ public class Payment extends AbstractEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private PaymentType type;          // DEPOSIT или RENT
+    private PaymentType type;
 
     @DecimalMin("0.0")
     @Column(nullable = false)
     private BigDecimal amount;
 
     @Enumerated(EnumType.STRING)
-    private PaymentMethod method;      // KASPI, HALYK, CARD
+    private PaymentMethod method;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private PaymentStatus status;      // PENDING → PAID → REFUNDED
+    private PaymentStatus status;
 
-    private String transactionId;      // ID от платёжной системы
+    private String transactionId;
 
-    private LocalDateTime paidAt;      // когда фактически оплачено
+    private LocalDateTime paidAt;
 }

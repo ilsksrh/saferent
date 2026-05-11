@@ -3,6 +3,7 @@ package backend.saferent.util;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -19,16 +20,20 @@ public class JwtUtil {
     @Value("${jwt.expiration}")
     private long expiration;
 
-    // Сгенерировать токен
-    public String generateToken(UUID userId, String phone) {
-        SecretKey key = Keys.hmacShaKeyFor(secret.getBytes());
+    private SecretKey secretKey;
 
+    @PostConstruct
+    private void init() {
+        this.secretKey = Keys.hmacShaKeyFor(secret.getBytes());
+    }
+
+    public String generateToken(UUID userId, String phone) {
         return Jwts.builder()
                 .subject(userId.toString())
                 .claim("phone", phone)
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + expiration))
-                .signWith(key)
+                .signWith(secretKey)
                 .compact();
     }
 
@@ -50,9 +55,8 @@ public class JwtUtil {
     }
 
     private Claims extractClaims(String token) {
-        SecretKey key = Keys.hmacShaKeyFor(secret.getBytes());
         return Jwts.parser()
-                .verifyWith(key)
+                .verifyWith(secretKey)
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();

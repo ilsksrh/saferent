@@ -187,22 +187,15 @@ public class PaymentServiceImpl implements PaymentService {
                 .findByContractAndType(contract, PaymentType.DEPOSIT)
                 .orElse(null);
 
-        boolean depositPaid = deposit != null
-                && deposit.getStatus() == PaymentStatus.PAID;
-
         String destination;
         String note;
 
-        if (!depositPaid) {
+        if (deposit == null) {
             destination = "NOT_PAID";
             note = "Deposit has not been paid yet";
         } else if (deposit.getStatus() == PaymentStatus.REFUNDED) {
             destination = "RETURNED";
             note = "Deposit has been returned";
-        } else if (contract.getStatus() == ContractStatus.ACTIVE) {
-            destination = "ESCROW";
-            note = "Deposit is safely held in escrow. " +
-                    "Will be returned to tenant after successful checkout.";
         } else if (contract.getStatus() == ContractStatus.COMPLETED) {
             destination = "TENANT";
             note = "Contract completed. Deposit returned to tenant.";
@@ -211,8 +204,12 @@ public class PaymentServiceImpl implements PaymentService {
             note = "Contract cancelled. Deposit disposition under review.";
         } else {
             destination = "ESCROW";
-            note = "Deposit held in escrow";
+            note = "Deposit is safely held in escrow. " +
+                    "Will be returned to tenant after successful checkout.";
         }
+
+        boolean depositPaid = deposit != null
+                && deposit.getStatus() == PaymentStatus.PAID;
 
         return EscrowStatusResponse.builder()
                 .contractId(contract.getId())
@@ -220,9 +217,7 @@ public class PaymentServiceImpl implements PaymentService {
                 .tenantName(contract.getTenant().getName())
                 .landlordName(contract.getLandlord().getName())
                 .depositAmount(contract.getDepositAmount())
-                .depositStatus(depositPaid
-                        ? PaymentStatus.PAID
-                        : PaymentStatus.PENDING)
+                .depositStatus(deposit != null ? deposit.getStatus() : PaymentStatus.PENDING)
                 .depositPaid(depositPaid)
                 .depositPaidAt(deposit != null ? deposit.getPaidAt() : null)
                 .depositReturnDestination(destination)
@@ -237,7 +232,6 @@ public class PaymentServiceImpl implements PaymentService {
         Contract contract = contractRepository.findById(contractId)
                 .orElseThrow(() -> new NotFoundException("Contract not found"));
 
-        // Берём requestedBy из токена
         UUID requestedBy = securityUtils.getCurrentUserId();
 
         boolean isLandlord = contract.getLandlord().getId().equals(requestedBy);
@@ -285,7 +279,6 @@ public class PaymentServiceImpl implements PaymentService {
         Contract contract = contractRepository.findById(contractId)
                 .orElseThrow(() -> new NotFoundException("Contract not found"));
 
-        // Берём requestedBy из токена
         UUID requestedBy = securityUtils.getCurrentUserId();
 
         if (!contract.getLandlord().getId().equals(requestedBy)) {

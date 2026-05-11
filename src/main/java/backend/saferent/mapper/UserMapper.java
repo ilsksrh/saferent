@@ -12,6 +12,7 @@ public class UserMapper {
     public User toEntity(CreateUserRequest request) {
         return User.builder()
                 .phone(request.getPhone())
+                .email(request.getEmail())
                 .name(request.getName())
                 .preferredRole(request.getPreferredRole())
                 .egovId(request.getEgovId())
@@ -21,10 +22,11 @@ public class UserMapper {
     }
 
     public User updateEntity(User user, UpdateUserRequest request) {
-        if (request.getName() != null) user.setName(request.getName());
+        if (request.getName() != null)         user.setName(request.getName());
+        if (request.getEmail() != null)        user.setEmail(request.getEmail());
         if (request.getPreferredRole() != null) user.setPreferredRole(request.getPreferredRole());
-        if (request.getEgovId() != null) user.setEgovId(request.getEgovId());
-        if (request.getAvatarUrl() != null) user.setAvatarUrl(request.getAvatarUrl());
+        if (request.getEgovId() != null)       user.setEgovId(request.getEgovId());
+        if (request.getAvatarUrl() != null)    user.setAvatarUrl(request.getAvatarUrl());
         return user;
     }
 
@@ -32,6 +34,7 @@ public class UserMapper {
         return UserResponse.builder()
                 .id(user.getId())
                 .phone(user.getPhone())
+                .email(user.getEmail())
                 .name(user.getName())
                 .preferredRole(user.getPreferredRole())
                 .egovId(user.getEgovId())

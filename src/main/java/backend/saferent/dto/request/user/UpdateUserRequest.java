@@ -10,6 +10,9 @@ public class UpdateUserRequest {
     @Size(max = 100, message = "Имя не должно превышать 100 символов")
     private String name;
 
+    @Size(max = 100)
+    private String email;
+
     private PreferredRole preferredRole;
 
     @Size(max = 50, message = "eGov ID не должен превышать 50 символов")

@@ -14,6 +14,7 @@ import backend.saferent.repository.UserRepository;
 import backend.saferent.service.DistrictService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -56,6 +57,7 @@ public class DistrictServiceImpl implements DistrictService {
     }
 
     @Override
+    @Transactional
     public void rateDistrict(DistrictRatingRequest request, UUID userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
@@ -80,5 +82,10 @@ public class DistrictServiceImpl implements DistrictService {
             districtRatingRepository.save(rating);
         }
 
+        double avgSafety  = districtRatingRepository.findAverageSafetyByDistrict(district);
+        double avgComfort = districtRatingRepository.findAverageComfortByDistrict(district);
+        district.setSafetyScore((int) Math.round(avgSafety));
+        district.setComfortScore((int) Math.round(avgComfort));
+        districtRepository.save(district);
     }
 }

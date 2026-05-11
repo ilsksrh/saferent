@@ -32,6 +32,9 @@ public class SecurityConfig {
                                 "/api/v1/apartments/active",
                                 "/api/v1/apartments/{id}",
                                 "/api/v1/districts",
+                                "/api/v1/districts/{id}",
+                                "/api/v1/reviews/about/**",
+                                "/api/v1/reviews/rating/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
                                 "/v3/api-docs/**"

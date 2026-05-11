@@ -17,6 +17,7 @@ public class UserResponse {
 
     private UUID id;
     private String phone;
+    private String email;
     private String name;
     private PreferredRole preferredRole;
     private String egovId;

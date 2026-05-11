@@ -11,6 +11,9 @@ public class CreateUserRequest {
     @Size(max = 20, message = "Телефон не должен превышать 20 символов")
     private String phone;
 
+    @Size(max = 100)
+    private String email;
+
     @NotBlank(message = "Имя обязательно")
     @Size(max = 100, message = "Имя не должно превышать 100 символов")
     private String name;

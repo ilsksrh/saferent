@@ -12,19 +12,14 @@ import java.util.UUID;
 
 public interface ReviewRepository extends JpaRepository<Review, UUID> {
 
-    // Отзывы о конкретном пользователе
     List<Review> findByTargetUserOrderByCreatedAtDesc(User user);
 
-    // Отзывы написанные пользователем
     List<Review> findByAuthorOrderByCreatedAtDesc(User author);
 
-    // Уже оставил отзыв по этому договору?
     boolean existsByContractAndAuthor(Contract contract, User author);
 
-    // Средний рейтинг пользователя
     @Query("SELECT AVG(r.rating) FROM Review r WHERE r.targetUser = :user")
     Double getAverageRatingForUser(@Param("user") User user);
 
-    // Количество отзывов у пользователя
     int countByTargetUser(User user);
 }

@@ -12,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
@@ -30,6 +32,7 @@ public class AuthServiceImpl implements AuthService {
 
         User user = User.builder()
                 .phone(request.getPhone())
+                .email(request.getEmail())
                 .name(request.getName())
                 .passwordHash(passwordEncoder.encode(request.getPassword()))
                 .preferredRole(request.getPreferredRole())
@@ -37,18 +40,7 @@ public class AuthServiceImpl implements AuthService {
                 .build();
 
         user = userRepository.save(user);
-
-        String token = jwtUtil.generateToken(user.getId(), user.getPhone());
-
-        return AuthResponse.builder()
-                .accessToken(token)
-                .tokenType("Bearer")
-                .userId(user.getId())
-                .name(user.getName())
-                .phone(user.getPhone())
-                .role(user.getPreferredRole())
-                .verified(user.isVerified())
-                .build();
+        return toAuthResponse(user, jwtUtil.generateToken(user.getId(), user.getPhone()));
     }
 
 
@@ -63,11 +55,13 @@ public class AuthServiceImpl implements AuthService {
             throw new BadRequestException("Invalid phone or password");
         }
 
-        user.setLastLoginAt(java.time.LocalDateTime.now());
+        user.setLastLoginAt(LocalDateTime.now());
         userRepository.save(user);
 
-        String token = jwtUtil.generateToken(user.getId(), user.getPhone());
+        return toAuthResponse(user, jwtUtil.generateToken(user.getId(), user.getPhone()));
+    }
 
+    private AuthResponse toAuthResponse(User user, String token) {
         return AuthResponse.builder()
                 .accessToken(token)
                 .tokenType("Bearer")

@@ -11,16 +11,12 @@ import java.util.UUID;
 
 public interface BookingRepository extends JpaRepository<Booking, UUID> {
 
-    // Все заявки арендатора
     List<Booking> findByTenant(User tenant);
 
-    // Входящие заявки арендодателя (через квартиры)
     List<Booking> findByApartment_Landlord(User landlord);
 
-    // Заявки по конкретной квартире
     List<Booking> findByApartment(Apartment apartment);
 
-    // Активные заявки по квартире (чтобы не дублировать)
     boolean existsByApartmentAndTenantAndStatus(
             Apartment apartment, User tenant, BookingStatus status
     );

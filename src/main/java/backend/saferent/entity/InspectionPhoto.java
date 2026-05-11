@@ -1,4 +1,3 @@
-// InspectionPhoto.java
 package backend.saferent.entity;
 
 import backend.saferent.entity.enums.InspectionType;

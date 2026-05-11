@@ -13,14 +13,10 @@ import java.util.UUID;
 
 public interface MessageRepository extends JpaRepository<Message, UUID> {
 
-    // История сообщений (по возрасту)
     List<Message> findByChatOrderByCreatedAtAsc(Chat chat);
 
-    // Последнее сообщение в чате
     Optional<Message> findTopByChatOrderByCreatedAtDesc(Chat chat);
 
-    // Непрочитанные сообщения в чате для конкретного пользователя
-    // (не отправленные им самим)
     @Query("SELECT m FROM Message m WHERE m.chat = :chat " +
             "AND m.sender <> :user AND m.isRead = false")
     List<Message> findUnreadMessages(
@@ -28,7 +24,6 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
             @Param("user") User user
     );
 
-    // Общее количество непрочитанных по всем чатам пользователя
     @Query("SELECT COUNT(m) FROM Message m " +
             "WHERE (m.chat.tenant = :user OR m.chat.landlord = :user) " +
             "AND m.sender <> :user AND m.isRead = false")

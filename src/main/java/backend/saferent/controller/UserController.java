@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -19,7 +20,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class UserController {
 
-    private final UserService userService;
+    private final UserService   userService;
     private final SecurityUtils securityUtils;
 
     @Operation(summary = "Получить текущего пользователя из токена")
@@ -34,8 +35,7 @@ public class UserController {
     @Operation(summary = "Регистрация нового пользователя")
     @PostMapping("/register")
     public ResponseEntity<UserResponse> register(@RequestBody CreateUserRequest request) {
-        UserResponse response = userService.createUser(request);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(userService.createUser(request));
     }
 
     @Operation(summary = "Получить пользователя по ID")
@@ -59,21 +59,29 @@ public class UserController {
     public ResponseEntity<UserResponse> updateProfile(
             @PathVariable UUID id,
             @RequestBody UpdateUserRequest request) {
-        UserResponse response = userService.updateUser(id, request);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(userService.updateUser(id, request));
     }
 
-    @Operation(summary = "Верифицировать пользователя (для теста)")
+    @Operation(summary = "Запросить OTP-код для верификации (отправляется на email)")
+    @PostMapping("/{id}/verify/request")
+    public ResponseEntity<Map<String, String>> requestOtp(@PathVariable UUID id) {
+        userService.requestOtp(id);
+        return ResponseEntity.ok(Map.of("message", "OTP sent to your email address"));
+    }
+
+    @Operation(summary = "Верифицировать пользователя по OTP-коду из email")
     @PostMapping("/{id}/verify")
-    public ResponseEntity<String> verify(@PathVariable UUID id) {
-        userService.verifyUser(id);
-        return ResponseEntity.ok("Пользователь верифицирован");
+    public ResponseEntity<Map<String, String>> verify(
+            @PathVariable UUID id,
+            @RequestParam String code) {
+        userService.verifyUser(id, code);
+        return ResponseEntity.ok(Map.of("message", "User verified successfully"));
     }
 
     @Operation(summary = "Обновить время последнего входа")
     @PostMapping("/{id}/login")
-    public ResponseEntity<String> updateLastLogin(@PathVariable UUID id) {
+    public ResponseEntity<Map<String, String>> updateLastLogin(@PathVariable UUID id) {
         userService.updateLastLogin(id);
-        return ResponseEntity.ok("Время последнего входа обновлено");
+        return ResponseEntity.ok(Map.of("message", "Last login updated"));
     }
 }

@@ -23,13 +23,12 @@ public class EscrowStatusResponse {
     private String landlordName;
 
     private BigDecimal depositAmount;
-    private PaymentStatus depositStatus;    // PENDING / PAID / REFUNDED
+    private PaymentStatus depositStatus;
 
     private boolean depositPaid;
     private LocalDateTime depositPaidAt;
 
-    // Куда вернётся депозит (определяется после AI анализа)
-    private String depositReturnDestination; // "TENANT" / "LANDLORD" / "PENDING_REVIEW"
+    private String depositReturnDestination;
 
-    private String escrowNote;               // объяснение статуса
+    private String escrowNote;
 }

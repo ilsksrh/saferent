@@ -77,17 +77,10 @@ public class ContractServiceImpl implements ContractService {
 
     @Override
     public List<ContractResponse> getMyContracts() {
-        UUID userId = securityUtils.getCurrentUserId();
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("User not found"));
+        User user = securityUtils.getCurrentUser();
 
-        List<Contract> asTenant   = contractRepository.findByTenant(user);
-        List<Contract> asLandlord = contractRepository.findByLandlord(user);
-
-        asTenant.addAll(asLandlord);
-
-        return asTenant.stream()
-                .distinct()
+        return contractRepository.findByTenantOrLandlord(user)
+                .stream()
                 .map(contractMapper::toResponse)
                 .collect(Collectors.toList());
     }

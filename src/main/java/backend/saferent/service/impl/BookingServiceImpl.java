@@ -50,6 +50,10 @@ public class BookingServiceImpl implements BookingService {
             throw new BadRequestException("Apartment is deleted");
         }
 
+        if (!apartment.isVerified()) {
+            throw new BadRequestException("Apartment must be verified first");
+        }
+
         UUID tenantId = securityUtils.getCurrentUserId();
         User tenant = userRepository.findById(tenantId)
                 .orElseThrow(() -> new NotFoundException("Tenant not found"));
