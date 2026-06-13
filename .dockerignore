@@ -1,0 +1,12 @@
+target/
+.git/
+.idea/
+.mvn/
+*.iml
+*.iws
+*.ipr
+images/
+claude/
+*.md
+.env
+.env.local

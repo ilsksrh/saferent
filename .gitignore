@@ -1,0 +1,51 @@
+# Build
+target/
+build/
+out/
+*.class
+*.jar
+!mvnw.cmd
+!.mvn/wrapper/maven-wrapper.jar
+
+# Maven
+.mvn/
+!.mvn/wrapper/maven-wrapper.properties
+
+# IDE
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+.settings/
+.project
+.classpath
+.factorypath
+nbproject/private/
+nb-configuration.xml
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+logs/
+
+# Local configuration (НИКОГДА не коммитить — содержит секреты)
+application-local.yml
+application-local.yaml
+application-local.properties
+.env
+.env.local
+
+# Docker volumes (если кто-то запустит docker compose с локальными bind mounts)
+postgres_data/
+minio_data/
+elasticsearch_data/
+
+# Misc
+*.swp
+*.swo
+*~
