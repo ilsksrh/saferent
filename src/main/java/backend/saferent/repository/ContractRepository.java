@@ -2,6 +2,7 @@ package backend.saferent.repository;
 
 import backend.saferent.entity.Contract;
 import backend.saferent.entity.User;
+import backend.saferent.entity.enums.ContractStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -17,5 +18,7 @@ public interface ContractRepository extends JpaRepository<Contract, UUID> {
 
     @Query("SELECT c FROM Contract c WHERE c.tenant = :user OR c.landlord = :user")
     List<Contract> findByTenantOrLandlord(@Param("user") User user);
+
+    List<Contract> findByStatusAndInspectionDecidedAtIsNotNull(ContractStatus status);
 
 }

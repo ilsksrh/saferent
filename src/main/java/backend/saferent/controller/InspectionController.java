@@ -41,6 +41,13 @@ public class InspectionController {
         ));
     }
 
+    @Operation(summary = "Тенант подтверждает фото при заезде")
+    @PostMapping("/{contractId}/confirm-checkin")
+    public ResponseEntity<Void> confirmCheckin(@PathVariable UUID contractId) {
+        inspectionService.confirmCheckin(contractId, securityUtils.getCurrentUserId());
+        return ResponseEntity.ok().build();
+    }
+
     @Operation(summary = "Загрузить фото при выезде (multipart-файл или photoUrl)")
     @PostMapping("/{contractId}/checkout")
     public ResponseEntity<InspectionPhotoResponse> uploadCheckout(

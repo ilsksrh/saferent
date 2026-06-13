@@ -233,7 +233,6 @@ class PaymentServiceImplTest {
         Payment deposit = new Payment();
         deposit.setStatus(PaymentStatus.PAID);
         when(contractRepository.findById(contractId)).thenReturn(Optional.of(contract));
-        when(securityUtils.getCurrentUserId()).thenReturn(landlordId);
         when(paymentRepository.findByContractAndType(contract, PaymentType.DEPOSIT))
                 .thenReturn(Optional.of(deposit));
         when(paymentRepository.save(any(Payment.class))).thenAnswer(inv -> inv.getArgument(0));
@@ -249,12 +248,21 @@ class PaymentServiceImplTest {
     }
 
     @Test
-    void releaseToLandlord_byNonLandlord_throws() {
+    void releaseToLandlord_success_refundsToLandlordAndCompletes() {
+        Payment deposit = new Payment();
+        deposit.setStatus(PaymentStatus.PAID);
         when(contractRepository.findById(contractId)).thenReturn(Optional.of(contract));
-        when(securityUtils.getCurrentUserId()).thenReturn(tenantId);
+        when(paymentRepository.findByContractAndType(contract, PaymentType.DEPOSIT))
+                .thenReturn(Optional.of(deposit));
+        when(paymentRepository.save(any(Payment.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(paymentMapper.toResponse(any())).thenReturn(mock(PaymentResponse.class));
 
-        assertThrows(BadRequestException.class,
-                () -> service.releaseDepositToLandlord(contractId));
-        verify(paymentRepository, never()).save(any());
+        service.releaseDepositToLandlord(contractId);
+
+        assertEquals(PaymentStatus.REFUNDED, deposit.getStatus());
+        assertTrue(deposit.getTransactionId().startsWith("TRANSFER_TO_LANDLORD_"));
+        assertEquals(ContractStatus.COMPLETED, contract.getStatus());
+        verify(notificationService).create(eq(landlordId), any(), any(),
+                eq(NotificationType.PAYMENT), any(), any());
     }
 }

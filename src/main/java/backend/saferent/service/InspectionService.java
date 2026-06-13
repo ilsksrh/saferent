@@ -13,6 +13,8 @@ public interface InspectionService {
             String photoUrl, String roomLabel
     );
 
+    void confirmCheckin(UUID contractId, UUID userId);
+
     InspectionPhotoResponse uploadCheckoutPhoto(
             UUID contractId, UUID uploadedBy,
             String photoUrl, String roomLabel

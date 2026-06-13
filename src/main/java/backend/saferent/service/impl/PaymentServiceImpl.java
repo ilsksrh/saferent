@@ -237,15 +237,6 @@ public class PaymentServiceImpl implements PaymentService {
         Contract contract = contractRepository.findById(contractId)
                 .orElseThrow(() -> new NotFoundException("Contract not found"));
 
-        UUID requestedBy = securityUtils.getCurrentUserId();
-
-        boolean isLandlord = contract.getLandlord().getId().equals(requestedBy);
-        boolean isTenant   = contract.getTenant().getId().equals(requestedBy);
-
-        if (!isLandlord && !isTenant) {
-            throw new BadRequestException("Not authorized to release deposit");
-        }
-
         Payment deposit = paymentRepository
                 .findByContractAndType(contract, PaymentType.DEPOSIT)
                 .orElseThrow(() -> new NotFoundException(
@@ -283,14 +274,6 @@ public class PaymentServiceImpl implements PaymentService {
     public PaymentResponse releaseDepositToLandlord(UUID contractId) {
         Contract contract = contractRepository.findById(contractId)
                 .orElseThrow(() -> new NotFoundException("Contract not found"));
-
-        UUID requestedBy = securityUtils.getCurrentUserId();
-
-        if (!contract.getLandlord().getId().equals(requestedBy)) {
-            throw new BadRequestException(
-                    "Only the landlord can claim the deposit"
-            );
-        }
 
         Payment deposit = paymentRepository
                 .findByContractAndType(contract, PaymentType.DEPOSIT)

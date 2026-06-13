@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -58,7 +59,8 @@ public class PaymentController {
         return ResponseEntity.ok(paymentService.getEscrowStatus(contractId));
     }
 
-    @Operation(summary = "Вернуть депозит арендатору (SSIM >= 0.92)")
+    @Operation(summary = "Вернуть депозит арендатору (решает админ)")
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/escrow/{contractId}/release/tenant")
     public ResponseEntity<PaymentResponse> releaseToTenant(
             @PathVariable UUID contractId) {
@@ -67,7 +69,8 @@ public class PaymentController {
         );
     }
 
-    @Operation(summary = "Передать депозит арендодателю (SSIM < 0.70)")
+    @Operation(summary = "Передать депозит арендодателю (решает админ)")
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/escrow/{contractId}/release/landlord")
     public ResponseEntity<PaymentResponse> releaseToLandlord(
             @PathVariable UUID contractId) {

@@ -137,6 +137,8 @@ public class ContractServiceImpl implements ContractService {
             apartmentRepository.save(apt);
 
             rentScheduleService.generateIfAbsent(contract);
+            contract.setCheckinDeadline(contract.getStartDate().plusDays(2));
+            contract.setCheckoutDeadline(contract.getEndDate().plusDays(2));
 
             notificationService.create(
                     contract.getTenant().getId(),

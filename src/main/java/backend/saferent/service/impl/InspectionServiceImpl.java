@@ -17,9 +17,11 @@ import backend.saferent.repository.InspectionPhotoRepository;
 import backend.saferent.service.InspectionService;
 import backend.saferent.service.NotificationService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -32,6 +34,7 @@ public class InspectionServiceImpl implements InspectionService {
     private final AiAnalysisClient          aiAnalysisClient;
     private final NotificationService       notificationService;
     private final InspectionMapper          inspectionMapper;
+    private final SimpMessagingTemplate     messagingTemplate;
 
     private static final double SSIM_NO_DAMAGE    = 0.92;
     private static final double SSIM_MINOR_DAMAGE = 0.70;
@@ -46,9 +49,9 @@ public class InspectionServiceImpl implements InspectionService {
 
         Contract contract = getActiveContractOrThrow(contractId);
 
-        if (!contract.getTenant().getId().equals(uploadedBy)) {
+        if (!contract.getLandlord().getId().equals(uploadedBy)) {
             throw new BadRequestException(
-                    "Only the tenant can upload check-in photos"
+                    "Only the landlord can upload check-in (before) photos"
             );
         }
 
@@ -62,17 +65,52 @@ public class InspectionServiceImpl implements InspectionService {
         InspectionPhoto saved = inspectionPhotoRepository.save(photo);
 
         notificationService.create(
-                contract.getLandlord().getId(),
-                "Check-in Photos Uploaded",
-                contract.getTenant().getName() +
-                        " uploaded check-in photos for " +
-                        contract.getApartment().getTitle(),
+                contract.getTenant().getId(),
+                "Check-in Photos Ready",
+                "The landlord uploaded check-in photos for " +
+                        contract.getApartment().getTitle() +
+                        ". Please review and confirm they match the apartment.",
                 NotificationType.CONTRACT,
                 contract.getId(),
                 "CONTRACT"
         );
 
         return inspectionMapper.toResponse(saved);
+    }
+
+    @Override
+    @Transactional
+    public void confirmCheckin(UUID contractId, UUID userId) {
+        Contract contract = getActiveContractOrThrow(contractId);
+
+        if (!contract.getTenant().getId().equals(userId)) {
+            throw new BadRequestException("Only the tenant can confirm check-in");
+        }
+
+        boolean hasCheckin = inspectionPhotoRepository
+                .existsByContractAndType(contract, InspectionType.CHECKIN);
+        if (!hasCheckin) {
+            throw new BadRequestException(
+                    "The landlord has not uploaded check-in photos yet"
+            );
+        }
+        if (contract.getCheckinConfirmedAt() != null) {
+            throw new BadRequestException("Check-in is already confirmed");
+        }
+
+        contract.setCheckinConfirmedAt(LocalDateTime.now());
+        contractRepository.save(contract);
+
+        notificationService.create(
+                contract.getLandlord().getId(),
+                "Check-in Confirmed",
+                contract.getTenant().getName() +
+                        " confirmed the check-in photos for " +
+                        contract.getApartment().getTitle() + ".",
+                NotificationType.CONTRACT,
+                contract.getId(),
+                "CONTRACT"
+        );
     }
 
 
@@ -92,11 +130,9 @@ public class InspectionServiceImpl implements InspectionService {
             );
         }
 
-        boolean hasCheckin = inspectionPhotoRepository
-                .existsByContractAndType(contract, InspectionType.CHECKIN);
-        if (!hasCheckin) {
+        if (contract.getCheckinConfirmedAt() == null) {
             throw new BadRequestException(
-                    "Check-in photos must be uploaded before check-out photos"
+                    "Check-in must be confirmed by the tenant before uploading check-out photos"
             );
         }
 
@@ -222,7 +258,12 @@ public class InspectionServiceImpl implements InspectionService {
             notifyDepositReturn(contract, false);
         }
 
-        return InspectionCompareResponse.builder()
+        contract.setInspectionResult(result);
+        contract.setInspectionAvgSsim(avgScore);
+        contract.setInspectionDecidedAt(LocalDateTime.now());
+        contractRepository.save(contract);
+
+        InspectionCompareResponse response = InspectionCompareResponse.builder()
                 .contractId(contract.getId())
                 .averageSsimScore(avgScore)
                 .roomScores(roomScores)
@@ -231,6 +272,11 @@ public class InspectionServiceImpl implements InspectionService {
                 .damagedRooms(damagedRooms)
                 .summary(summary)
                 .build();
+
+        // Push the verdict to both parties in real-time (they subscribe to the contract topic).
+        messagingTemplate.convertAndSend("/topic/contracts/" + contract.getId(), response);
+
+        return response;
     }
 
 

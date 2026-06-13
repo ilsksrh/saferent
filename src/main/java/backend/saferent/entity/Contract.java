@@ -41,4 +41,14 @@ public class Contract extends AbstractEntity {
     private String eSignatureLandlord;
 
     private java.time.LocalDateTime signedAt;
+
+    // Inspection / escrow lifecycle
+    private java.time.LocalDate checkinDeadline;
+    private java.time.LocalDateTime checkinConfirmedAt;
+    private java.time.LocalDate checkoutDeadline;
+
+    @Enumerated(EnumType.STRING)
+    private backend.saferent.entity.enums.InspectionResult inspectionResult;
+    private Double inspectionAvgSsim;
+    private java.time.LocalDateTime inspectionDecidedAt;
 }
