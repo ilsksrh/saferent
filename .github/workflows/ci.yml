@@ -20,8 +20,7 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      # Тесты пропускаются: единственный текущий тест поднимает полный
-      # Spring-контекст и требует PostgreSQL/Elasticsearch. После добавления
-      # юнит-тестов на Mockito (без внешних зависимостей) заменить на `mvn -B verify`.
-      - name: Build with Maven
-        run: mvn -B clean package -DskipTests
+      # Юнит-тесты (Mockito) запускаются; контекстный ApplicationTests, требующий
+      # PostgreSQL/Elasticsearch, исключён через maven-surefire-plugin в pom.xml.
+      - name: Build & test with Maven
+        run: mvn -B clean verify

@@ -146,6 +146,18 @@
 				</configuration>
 			</plugin>
 			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<!-- Контекстный тест поднимает полный Spring-контекст (нужны
+					     PostgreSQL/Elasticsearch) — не для CI. Юнит-тесты на Mockito
+					     не требуют внешних сервисов и выполняются здесь. -->
+					<excludes>
+						<exclude>**/ApplicationTests.java</exclude>
+					</excludes>
+				</configuration>
+			</plugin>
+			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<configuration>
