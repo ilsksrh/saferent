@@ -14,6 +14,9 @@ public interface ApartmentRepository extends JpaRepository<Apartment, UUID>, Jpa
 
     List<Apartment> findAllByStatusAndDeletedAtIsNull(ApartmentStatus status);
 
+    List<Apartment> findAllByStatusAndVerifiedTrueAndDeletedAtIsNull(ApartmentStatus status);
+
     List<Apartment> findAllByLandlordId(UUID landlordId);
 
+    List<Apartment> findAllByVerifiedFalseAndDeletedAtIsNullOrderByCreatedAtDesc();
 }

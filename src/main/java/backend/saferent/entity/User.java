@@ -41,6 +41,9 @@ public class User extends AbstractEntity {
     @Column(nullable = false)
     private boolean verified = false;
 
+    @Column(nullable = false)
+    private boolean admin = false;
+
     @Size(max = 1024)
     private String avatarUrl;
 

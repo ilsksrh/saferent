@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Map;
 import java.util.UUID;
@@ -83,5 +84,13 @@ public class UserController {
     public ResponseEntity<Map<String, String>> updateLastLogin(@PathVariable UUID id) {
         userService.updateLastLogin(id);
         return ResponseEntity.ok(Map.of("message", "Last login updated"));
+    }
+
+    @Operation(summary = "Загрузить аватар (multipart → MinIO)")
+    @PostMapping(value = "/{id}/avatar", consumes = "multipart/form-data")
+    public ResponseEntity<UserResponse> uploadAvatar(@PathVariable UUID id,
+                                                     @RequestParam("file") MultipartFile file) {
+        UUID currentUserId = securityUtils.getCurrentUserId();
+        return ResponseEntity.ok(userService.uploadAvatar(id, file, currentUserId));
     }
 }

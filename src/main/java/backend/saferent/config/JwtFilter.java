@@ -42,15 +42,19 @@ public class JwtFilter extends OncePerRequestFilter {
                 User user = userRepository.findById(userId).orElse(null);
 
                 if (user != null) {
-                    String role = "ROLE_" + (user.getPreferredRole() != null
+                    String preferred = "ROLE_" + (user.getPreferredRole() != null
                             ? user.getPreferredRole().name()
                             : "TENANT");
 
+                    List<SimpleGrantedAuthority> authorities = new java.util.ArrayList<>();
+                    authorities.add(new SimpleGrantedAuthority(preferred));
+                    if (user.isAdmin()) {
+                        authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
+                    }
+
                     UsernamePasswordAuthenticationToken auth =
                             new UsernamePasswordAuthenticationToken(
-                                    user,
-                                    null,
-                                    List.of(new SimpleGrantedAuthority(role))
+                                    user, null, authorities
                             );
 
                     SecurityContextHolder.getContext().setAuthentication(auth);

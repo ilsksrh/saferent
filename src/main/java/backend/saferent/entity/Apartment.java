@@ -58,6 +58,12 @@ public class Apartment extends AbstractEntity {
 
     private boolean verified = false;
 
+    @Column(name = "rejection_reason", length = 1024)
+    private String rejectionReason;
+
+    @Column(name = "rejected_at")
+    private LocalDateTime rejectedAt;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ApartmentStatus status = ApartmentStatus.ACTIVE;

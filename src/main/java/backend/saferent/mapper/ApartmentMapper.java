@@ -2,6 +2,7 @@ package backend.saferent.mapper;
 
 import backend.saferent.dto.request.apartment.CreateApartmentRequest;
 import backend.saferent.dto.request.apartment.UpdateApartmentRequest;
+import backend.saferent.dto.response.apartment.ApartmentPhotoDto;
 import backend.saferent.dto.response.apartment.ApartmentResponse;
 import backend.saferent.entity.Apartment;
 import backend.saferent.entity.ApartmentPhoto;
@@ -52,11 +53,17 @@ public class ApartmentMapper {
 
     public ApartmentResponse toResponse(Apartment apartment) {
         List<String> photoUrls = List.of();
+        List<ApartmentPhotoDto> photos = List.of();
 
         if(apartmentPhotoRepository != null && apartment.getId() != null) {
-            photoUrls = apartmentPhotoRepository.findByApartment(apartment)
-                    .stream()
-                    .map(ApartmentPhoto::getUrl)
+            List<ApartmentPhoto> all = apartmentPhotoRepository.findByApartment(apartment);
+            photoUrls = all.stream().map(ApartmentPhoto::getUrl).collect(Collectors.toList());
+            photos = all.stream()
+                    .map(p -> ApartmentPhotoDto.builder()
+                            .id(p.getId())
+                            .url(p.getUrl())
+                            .position(p.getPosition())
+                            .build())
                     .collect(Collectors.toList());
         }
 
@@ -69,10 +76,13 @@ public class ApartmentMapper {
                 .address(apartment.getAddress())
                 .price(apartment.getPrice())
                 .photoUrls(photoUrls)
+                .photos(photos)
                 .area(apartment.getArea())
                 .rooms(apartment.getRooms())
                 .availableFrom(apartment.getAvailableFrom())
                 .verified(apartment.isVerified())
+                .rejectionReason(apartment.getRejectionReason())
+                .rejectedAt(apartment.getRejectedAt())
                 .status(apartment.getStatus())
                 .createdAt(apartment.getCreatedAt())
                 .updatedAt(apartment.getUpdatedAt())

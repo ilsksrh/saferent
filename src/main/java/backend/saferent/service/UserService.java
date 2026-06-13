@@ -4,6 +4,7 @@ import backend.saferent.dto.request.user.CreateUserRequest;
 import backend.saferent.dto.request.user.UpdateUserRequest;
 import backend.saferent.dto.response.user.UserResponse;
 import backend.saferent.entity.User;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -27,4 +28,6 @@ public interface UserService {
     User getUserEntityOrThrow(UUID id);
 
     boolean existsByPhone(String phone);
+
+    UserResponse uploadAvatar(UUID userId, MultipartFile file, UUID currentUserId);
 }

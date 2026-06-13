@@ -70,6 +70,7 @@ public class AuthServiceImpl implements AuthService {
                 .phone(user.getPhone())
                 .role(user.getPreferredRole())
                 .verified(user.isVerified())
+                .admin(user.isAdmin())
                 .build();
     }
 }

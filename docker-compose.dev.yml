@@ -1,0 +1,131 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: saferent-postgres
+    environment:
+      POSTGRES_DB: saferent_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: sara1234
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  minio:
+    image: minio/minio:latest
+    container_name: saferent-minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  minio-init:
+    image: minio/mc:latest
+    container_name: saferent-minio-init
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set local http://minio:9000 minioadmin minioadmin;
+      mc mb --ignore-existing local/saferent-photos;
+      mc anonymous set download local/saferent-photos;
+      echo 'MinIO bucket saferent-photos ready';
+      "
+
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: saferent-mailhog
+    ports:
+      - "1025:1025"   # SMTP
+      - "8025:8025"   # web UI
+
+  ai-service:
+    build:
+      context: ./ai_service
+      dockerfile: Dockerfile
+    container_name: saferent-ai
+    ports:
+      - "8000:8000"
+    environment:
+      # URL'ы фото в БД содержат localhost:9000 (так нужно браузеру),
+      # но из контейнера localhost — это сам контейнер. Подменяем хост на minio:9000.
+      MINIO_PUBLIC_HOST: localhost:9000
+      MINIO_INTERNAL_HOST: minio:9000
+    depends_on:
+      minio:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:9.1.0
+    container_name: saferent-elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    ports:
+      - "9200:9200"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:9200/_cluster/health | grep -E 'yellow|green'"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: saferent-backend
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/saferent_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: sara1234
+      MAIL_HOST: mailhog
+      MAIL_PORT: 1025
+      ELASTICSEARCH_URI: http://elasticsearch:9200
+      AI_SERVICE_URL: http://ai-service:8000
+      # Подключение к MinIO — по внутреннему имени сети,
+      # а публичные ссылки на фото остаются на localhost:9000 (их открывает браузер).
+      MINIO_ENDPOINT: http://minio:9000
+      MINIO_PUBLIC_ENDPOINT: http://localhost:9000
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+      MINIO_BUCKET: saferent-photos
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+      ai-service:
+        condition: service_started
+
+volumes:
+  postgres_data:
+  minio_data:
+  elasticsearch_data:

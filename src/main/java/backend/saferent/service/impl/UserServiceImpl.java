@@ -8,10 +8,12 @@ import backend.saferent.exception.BadRequestException;
 import backend.saferent.exception.NotFoundException;
 import backend.saferent.mapper.UserMapper;
 import backend.saferent.repository.UserRepository;
+import backend.saferent.service.FileStorageService;
 import backend.saferent.service.OtpService;
 import backend.saferent.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -24,6 +26,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final UserMapper     userMapper;
     private final OtpService     otpService;
+    private final FileStorageService fileStorageService;
 
     @Override
     public UserResponse createUser(CreateUserRequest request) {
@@ -96,5 +99,17 @@ public class UserServiceImpl implements UserService {
     @Override
     public boolean existsByPhone(String phone) {
         return userRepository.existsByPhone(phone);
+    }
+
+    @Override
+    public UserResponse uploadAvatar(UUID userId, MultipartFile file, UUID currentUserId) {
+        if (!userId.equals(currentUserId)) {
+            throw new BadRequestException("Можно обновлять только свой аватар");
+        }
+        User user = getUserEntityOrThrow(userId);
+        String url = fileStorageService.upload(file, "avatars/" + userId);
+        user.setAvatarUrl(url);
+        user = userRepository.save(user);
+        return userMapper.toResponse(user);
     }
 }

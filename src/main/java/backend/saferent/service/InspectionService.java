@@ -21,4 +21,8 @@ public interface InspectionService {
     InspectionCompareResponse compare(UUID contractId, UUID requestedBy);
 
     List<InspectionPhotoResponse> getAllByContract(UUID contractId);
+
+    void deletePhoto(UUID contractId, UUID photoId, UUID currentUserId);
+
+    void clearAll(UUID contractId, UUID currentUserId);
 }

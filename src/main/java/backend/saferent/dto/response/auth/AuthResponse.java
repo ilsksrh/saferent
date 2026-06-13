@@ -22,4 +22,5 @@ public class AuthResponse {
     private String phone;
     private PreferredRole role;
     private boolean verified;
+    private boolean admin;
 }

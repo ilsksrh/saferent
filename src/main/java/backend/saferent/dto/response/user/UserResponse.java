@@ -23,6 +23,7 @@ public class UserResponse {
     private String egovId;
     private boolean verified;
     private String avatarUrl;
+    private boolean admin;
     private LocalDateTime lastLoginAt;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

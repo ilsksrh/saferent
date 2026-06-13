@@ -10,9 +10,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.List;
-import java.util.Map;
-
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -26,31 +23,30 @@ public class AiAnalysisClient {
     public AiCompareResult comparePhotos(String beforeUrl, String afterUrl) {
         try {
             String url = aiServiceUrl + "/compare";
-
             CompareRequest request = new CompareRequest(beforeUrl, afterUrl);
 
             ResponseEntity<AiCompareResult> response = restTemplate.postForEntity(
                     url, request, AiCompareResult.class
             );
 
-            if (response.getBody() != null) {
-                return response.getBody();
+            if (response.getBody() == null) {
+                throw new AiServiceUnavailableException("AI сервис вернул пустой ответ");
             }
+            return response.getBody();
+        } catch (AiServiceUnavailableException e) {
+            throw e;
         } catch (Exception e) {
             log.error("AI service unavailable: {}", e.getMessage());
-            // Если AI недоступен — возвращаем mock результат для MVP
-            return mockResult();
+            throw new AiServiceUnavailableException(
+                    "AI сервис недоступен. Запустите ai-service и попробуйте снова."
+            );
         }
-
-        return mockResult();
     }
 
-    private AiCompareResult mockResult() {
-        AiCompareResult mock = new AiCompareResult();
-        mock.setSsimScore(0.95);
-        mock.setDamageRegionCount(0);
-        mock.setDamageDescription("AI service unavailable — mock result: no damage detected");
-        return mock;
+    public static class AiServiceUnavailableException extends RuntimeException {
+        public AiServiceUnavailableException(String message) {
+            super(message);
+        }
     }
 
     @Data

@@ -39,6 +39,7 @@ public class UserMapper {
                 .preferredRole(user.getPreferredRole())
                 .egovId(user.getEgovId())
                 .verified(user.isVerified())
+                .admin(user.isAdmin())
                 .avatarUrl(user.getAvatarUrl())
                 .lastLoginAt(user.getLastLoginAt())
                 .createdAt(user.getCreatedAt())

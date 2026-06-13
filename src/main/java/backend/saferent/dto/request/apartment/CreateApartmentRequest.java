@@ -11,7 +11,7 @@ import java.util.UUID;
 @Data
 public class CreateApartmentRequest {
 
-    @NotNull(message = "ID арендодателя обязателен")
+    // landlordId берётся из JWT текущего пользователя — не из тела запроса
     private UUID landlordId;
 
     @NotNull(message = "ID района обязателен")

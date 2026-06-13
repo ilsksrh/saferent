@@ -328,4 +328,40 @@ public class InspectionServiceImpl implements InspectionService {
                 "CONTRACT"
         );
     }
+
+    @Override
+    @Transactional
+    public void deletePhoto(UUID contractId, UUID photoId, UUID currentUserId) {
+        Contract contract = contractRepository.findById(contractId)
+                .orElseThrow(() -> new NotFoundException("Contract not found"));
+
+        if (!contract.getTenant().getId().equals(currentUserId)
+                && !contract.getLandlord().getId().equals(currentUserId)) {
+            throw new BadRequestException("Только участник договора может удалять фото");
+        }
+
+        InspectionPhoto photo = inspectionPhotoRepository.findById(photoId)
+                .orElseThrow(() -> new NotFoundException("Фото не найдено"));
+
+        if (!photo.getContract().getId().equals(contractId)) {
+            throw new BadRequestException("Фото не относится к этому договору");
+        }
+
+        inspectionPhotoRepository.delete(photo);
+    }
+
+    @Override
+    @Transactional
+    public void clearAll(UUID contractId, UUID currentUserId) {
+        Contract contract = contractRepository.findById(contractId)
+                .orElseThrow(() -> new NotFoundException("Contract not found"));
+
+        if (!contract.getTenant().getId().equals(currentUserId)
+                && !contract.getLandlord().getId().equals(currentUserId)) {
+            throw new BadRequestException("Только участник договора может очищать фото");
+        }
+
+        List<InspectionPhoto> all = inspectionPhotoRepository.findAllByContractId(contractId);
+        inspectionPhotoRepository.deleteAll(all);
+    }
 }

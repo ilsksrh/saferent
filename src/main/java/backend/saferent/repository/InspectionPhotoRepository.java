@@ -17,4 +17,6 @@ public interface InspectionPhotoRepository extends JpaRepository<InspectionPhoto
     List<InspectionPhoto> findByContractOrderByCreatedAtAsc(Contract contract);
 
     boolean existsByContractAndType(Contract contract, InspectionType type);
+
+    List<InspectionPhoto> findAllByContractId(UUID contractId);
 }

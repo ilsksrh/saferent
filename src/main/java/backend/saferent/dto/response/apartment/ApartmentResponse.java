@@ -29,9 +29,12 @@ public class ApartmentResponse {
     private Short rooms;
     private LocalDate availableFrom;
     private Boolean verified;
+    private String rejectionReason;
+    private LocalDateTime rejectedAt;
     private ApartmentStatus status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime deletedAt;
     private List<String> photoUrls;
+    private List<ApartmentPhotoDto> photos;
 }

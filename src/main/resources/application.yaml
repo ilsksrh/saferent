@@ -13,16 +13,24 @@ spring:
       hibernate:
         format_sql: true
   mail:
-    host: smtp.gmail.com
-    port: 587
-    username: ${MAIL_USERNAME:saferent.noreply@gmail.com}
-    password: ${MAIL_PASSWORD:changeme}
+    host: ${MAIL_HOST:localhost}
+    port: ${MAIL_PORT:1025}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
     properties:
       mail:
         smtp:
-          auth: true
+          auth: ${MAIL_AUTH:false}
           starttls:
-            enable: true
+            enable: ${MAIL_STARTTLS:false}
+  elasticsearch:
+    uris: ${ELASTICSEARCH_URI:http://localhost:9200}
+    connection-timeout: 5s
+    socket-timeout: 30s
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 25MB
 
 jwt:
   secret: saferent_super_secret_key_must_be_at_least_32_chars
@@ -34,6 +42,7 @@ ai:
 
 minio:
   endpoint: ${MINIO_ENDPOINT:http://localhost:9000}
+  public-endpoint: ${MINIO_PUBLIC_ENDPOINT:${minio.endpoint}}
   accessKey: ${MINIO_ACCESS_KEY:minioadmin}
   secretKey: ${MINIO_SECRET_KEY:minioadmin}
   bucket: ${MINIO_BUCKET:saferent-photos}
