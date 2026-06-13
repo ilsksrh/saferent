@@ -3,6 +3,7 @@ package backend.saferent.service.impl;
 import backend.saferent.dto.request.payment.CreatePaymentRequest;
 import backend.saferent.dto.response.payment.EscrowStatusResponse;
 import backend.saferent.dto.response.payment.PaymentResponse;
+import backend.saferent.dto.response.payment.RentPeriodResponse;
 import backend.saferent.entity.Contract;
 import backend.saferent.entity.Payment;
 import backend.saferent.entity.enums.ContractStatus;
@@ -16,6 +17,7 @@ import backend.saferent.repository.ContractRepository;
 import backend.saferent.repository.PaymentRepository;
 import backend.saferent.service.NotificationService;
 import backend.saferent.service.PaymentService;
+import backend.saferent.service.RentScheduleService;
 import backend.saferent.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -34,6 +36,7 @@ public class PaymentServiceImpl implements PaymentService {
     private final ContractRepository  contractRepository;
     private final PaymentMapper       paymentMapper;
     private final NotificationService notificationService;
+    private final RentScheduleService rentScheduleService;
     private final SecurityUtils       securityUtils;
 
 
@@ -140,6 +143,8 @@ public class PaymentServiceImpl implements PaymentService {
                 .build();
 
         Payment saved = paymentRepository.save(payment);
+
+        rentScheduleService.markEarliestPaid(contract, saved);
 
         notificationService.create(
                 contract.getLandlord().getId(),
@@ -330,6 +335,26 @@ public class PaymentServiceImpl implements PaymentService {
         return paymentMapper.toResponse(saved);
     }
 
+
+    @Override
+    public List<RentPeriodResponse> getRentSchedule(UUID contractId) {
+        Contract contract = contractRepository.findById(contractId)
+                .orElseThrow(() -> new NotFoundException("Contract not found"));
+
+        return rentScheduleService.getSchedule(contract)
+                .stream()
+                .map(p -> RentPeriodResponse.builder()
+                        .id(p.getId())
+                        .periodIndex(p.getPeriodIndex())
+                        .periodStart(p.getPeriodStart())
+                        .periodEnd(p.getPeriodEnd())
+                        .dueDate(p.getDueDate())
+                        .amount(p.getAmount())
+                        .status(p.getStatus())
+                        .paidAt(p.getPaidAt())
+                        .build())
+                .collect(Collectors.toList());
+    }
 
     private Contract getActiveContractOrThrow(UUID contractId) {
         Contract contract = contractRepository.findById(contractId)

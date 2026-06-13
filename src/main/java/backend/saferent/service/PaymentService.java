@@ -3,6 +3,7 @@ package backend.saferent.service;
 import backend.saferent.dto.request.payment.CreatePaymentRequest;
 import backend.saferent.dto.response.payment.EscrowStatusResponse;
 import backend.saferent.dto.response.payment.PaymentResponse;
+import backend.saferent.dto.response.payment.RentPeriodResponse;
 
 import java.util.List;
 import java.util.UUID;
@@ -14,6 +15,8 @@ public interface PaymentService {
     PaymentResponse payRent(CreatePaymentRequest request);
 
     List<PaymentResponse> getByContract(UUID contractId);
+
+    List<RentPeriodResponse> getRentSchedule(UUID contractId);
 
     EscrowStatusResponse getEscrowStatus(UUID contractId);
 

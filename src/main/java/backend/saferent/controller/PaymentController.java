@@ -3,6 +3,7 @@ package backend.saferent.controller;
 import backend.saferent.dto.request.payment.CreatePaymentRequest;
 import backend.saferent.dto.response.payment.EscrowStatusResponse;
 import backend.saferent.dto.response.payment.PaymentResponse;
+import backend.saferent.dto.response.payment.RentPeriodResponse;
 import backend.saferent.service.PaymentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -41,6 +42,13 @@ public class PaymentController {
     public ResponseEntity<List<PaymentResponse>> getByContract(
             @PathVariable UUID contractId) {
         return ResponseEntity.ok(paymentService.getByContract(contractId));
+    }
+
+    @Operation(summary = "График платежей аренды (календарь)")
+    @GetMapping("/schedule/{contractId}")
+    public ResponseEntity<List<RentPeriodResponse>> getRentSchedule(
+            @PathVariable UUID contractId) {
+        return ResponseEntity.ok(paymentService.getRentSchedule(contractId));
     }
 
     @Operation(summary = "Статус эскроу по договору")

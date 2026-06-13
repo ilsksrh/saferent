@@ -16,6 +16,7 @@ import backend.saferent.repository.ContractRepository;
 import backend.saferent.repository.UserRepository;
 import backend.saferent.service.ContractService;
 import backend.saferent.service.NotificationService;
+import backend.saferent.service.RentScheduleService;
 import backend.saferent.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -35,6 +36,7 @@ public class ContractServiceImpl implements ContractService {
     private final ApartmentRepository  apartmentRepository;
     private final ContractMapper       contractMapper;
     private final NotificationService  notificationService;
+    private final RentScheduleService  rentScheduleService;
     private final SecurityUtils        securityUtils;
 
     @Override
@@ -133,6 +135,8 @@ public class ContractServiceImpl implements ContractService {
             Apartment apt = contract.getApartment();
             apt.setStatus(ApartmentStatus.RENTED);
             apartmentRepository.save(apt);
+
+            rentScheduleService.generateIfAbsent(contract);
 
             notificationService.create(
                     contract.getTenant().getId(),

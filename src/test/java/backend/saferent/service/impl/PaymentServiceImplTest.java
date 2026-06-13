@@ -17,6 +17,7 @@ import backend.saferent.mapper.PaymentMapper;
 import backend.saferent.repository.ContractRepository;
 import backend.saferent.repository.PaymentRepository;
 import backend.saferent.service.NotificationService;
+import backend.saferent.service.RentScheduleService;
 import backend.saferent.util.SecurityUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -42,6 +43,7 @@ class PaymentServiceImplTest {
     @Mock ContractRepository contractRepository;
     @Mock PaymentMapper paymentMapper;
     @Mock NotificationService notificationService;
+    @Mock RentScheduleService rentScheduleService;
     @Mock SecurityUtils securityUtils;
 
     @InjectMocks PaymentServiceImpl service;
@@ -158,6 +160,20 @@ class PaymentServiceImplTest {
     }
 
     // ─── payRent ─────────────────────────────────────────────────────────
+
+    @Test
+    void payRent_success_marksEarliestPeriodPaid() {
+        when(contractRepository.findById(contractId)).thenReturn(Optional.of(contract));
+        when(securityUtils.getCurrentUserId()).thenReturn(tenantId);
+        when(paymentRepository.existsByContractAndTypeAndStatus(
+                contract, PaymentType.DEPOSIT, PaymentStatus.PAID)).thenReturn(true);
+        when(paymentRepository.save(any(Payment.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(paymentMapper.toResponse(any())).thenReturn(mock(PaymentResponse.class));
+
+        service.payRent(request(new BigDecimal("50000"), PaymentType.RENT));
+
+        verify(rentScheduleService).markEarliestPaid(eq(contract), any(Payment.class));
+    }
 
     @Test
     void payRent_beforeDepositPaid_throws() {
