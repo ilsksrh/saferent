@@ -11,6 +11,7 @@ import backend.saferent.repository.NotificationRepository;
 import backend.saferent.repository.UserRepository;
 import backend.saferent.service.NotificationService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +26,7 @@ public class NotificationServiceImpl implements NotificationService {
     private final NotificationRepository notificationRepository;
     private final UserRepository         userRepository;
     private final NotificationMapper     notificationMapper;
+    private final SimpMessagingTemplate  messagingTemplate;
 
     // ─── Создать уведомление ─────────────────────────────────────────────
 
@@ -50,7 +52,12 @@ public class NotificationServiceImpl implements NotificationService {
                 .isRead(false)
                 .build();
 
-        notificationRepository.save(notification);
+        Notification saved = notificationRepository.save(notification);
+
+        messagingTemplate.convertAndSend(
+                "/topic/users/" + userId,
+                notificationMapper.toResponse(saved)
+        );
     }
 
 

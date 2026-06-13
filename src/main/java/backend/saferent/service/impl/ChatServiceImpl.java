@@ -18,6 +18,7 @@ import backend.saferent.service.ChatService;
 import backend.saferent.service.NotificationService;
 import backend.saferent.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,6 +37,7 @@ public class ChatServiceImpl implements ChatService {
     private final ChatMapper           chatMapper;
     private final NotificationService notificationService;
     private final SecurityUtils securityUtils;
+    private final SimpMessagingTemplate messagingTemplate;
 
     // ─── Создать или получить чат ────────────────────────────────────────
 
@@ -141,7 +143,11 @@ public class ChatServiceImpl implements ChatService {
                 "CHAT"
         );
 
-        return chatMapper.toResponse(messageRepository.save(message));
+        MessageResponse saved = chatMapper.toResponse(messageRepository.save(message));
+
+        messagingTemplate.convertAndSend("/topic/chats/" + chat.getId(), saved);
+
+        return saved;
     }
 
     // ─── История сообщений ───────────────────────────────────────────────

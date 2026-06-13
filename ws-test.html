@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>SafeRent · WebSocket real-time тест</title>
+  <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7/bundles/stomp.umd.min.js"></script>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 760px; margin: 24px auto; padding: 0 16px; }
+    h1 { font-size: 20px; }
+    label { display: block; margin: 8px 0 2px; font-size: 13px; color: #444; }
+    input { width: 100%; padding: 8px; box-sizing: border-box; }
+    button { padding: 8px 14px; margin-top: 10px; cursor: pointer; }
+    .row { display: flex; gap: 8px; }
+    .row > * { flex: 1; }
+    #status { font-weight: bold; }
+    .on { color: green; } .off { color: #c00; }
+    #log { border: 1px solid #ccc; border-radius: 6px; padding: 10px; height: 280px; overflow-y: auto; margin-top: 14px; background: #fafafa; font-size: 14px; }
+    .msg { padding: 4px 0; border-bottom: 1px solid #eee; }
+    .msg .meta { font-size: 11px; color: #888; }
+    .notif { color: #1a56db; }
+  </style>
+</head>
+<body>
+  <h1>SafeRent · WebSocket real-time тест</h1>
+  <p>Открой эту страницу в <b>разных профилях Chrome</b> (тенант / лэндлорд), вставь их токены и общий <b>chatId</b>. Сообщения и уведомления прилетают вживую, без перезагрузки.</p>
+
+  <label>Backend URL</label>
+  <input id="baseUrl" value="http://localhost:8080">
+
+  <label>JWT токен (accessToken из ответа /auth/login)</label>
+  <input id="token" placeholder="eyJhbGciOiJ...">
+
+  <label>chatId (UUID диалога)</label>
+  <input id="chatId" placeholder="напр. из GET /api/v1/chats/my">
+
+  <button id="connectBtn">Подключиться</button>
+  <span id="status" class="off">отключено</span>
+
+  <div class="row" style="margin-top:16px">
+    <input id="text" placeholder="Текст сообщения…">
+    <button id="sendBtn" style="flex:0 0 120px">Отправить</button>
+  </div>
+
+  <div id="log"></div>
+
+<script>
+  let client = null;
+  let myUserId = null;
+
+  const $ = id => document.getElementById(id);
+  const log = (html, cls = 'msg') => {
+    const d = document.createElement('div');
+    d.className = cls;
+    d.innerHTML = html;
+    $('log').prepend(d);
+  };
+
+  // Достаём userId (sub) из JWT, чтобы подписаться на личные уведомления
+  function userIdFromToken(token) {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload.sub;
+    } catch (e) { return null; }
+  }
+
+  $('connectBtn').onclick = () => {
+    const baseUrl = $('baseUrl').value.trim();
+    const token = $('token').value.trim();
+    const chatId = $('chatId').value.trim();
+    if (!token || !chatId) { alert('Нужны токен и chatId'); return; }
+
+    myUserId = userIdFromToken(token);
+
+    client = new StompJs.Client({
+      webSocketFactory: () => new SockJS(baseUrl + '/ws'),
+      connectHeaders: { Authorization: 'Bearer ' + token },
+      reconnectDelay: 3000,
+      onConnect: () => {
+        $('status').textContent = 'подключено';
+        $('status').className = 'on';
+
+        client.subscribe('/topic/chats/' + chatId, frame => {
+          const m = JSON.parse(frame.body);
+          log(`<div><b>${m.senderName}:</b> ${m.text}</div>
+               <div class="meta">${new Date(m.createdAt).toLocaleTimeString()}</div>`);
+        });
+
+        if (myUserId) {
+          client.subscribe('/topic/users/' + myUserId, frame => {
+            const n = JSON.parse(frame.body);
+            log(`🔔 <b>${n.title}</b> — ${n.message || ''} <span class="meta">[${n.type}]</span>`, 'msg notif');
+          });
+        }
+      },
+      onStompError: f => log('STOMP error: ' + f.headers['message'], 'msg off'),
+      onWebSocketClose: () => { $('status').textContent = 'отключено'; $('status').className = 'off'; }
+    });
+    client.activate();
+  };
+
+  // Отправка идёт обычным REST-запросом (он уже защищён JWT);
+  // сервер сам разошлёт сообщение подписчикам через WebSocket.
+  $('sendBtn').onclick = async () => {
+    const baseUrl = $('baseUrl').value.trim();
+    const token = $('token').value.trim();
+    const chatId = $('chatId').value.trim();
+    const text = $('text').value.trim();
+    if (!text) return;
+    const res = await fetch(`${baseUrl}/api/v1/chats/${chatId}/messages`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ text })
+    });
+    if (!res.ok) { log('Ошибка отправки: ' + res.status, 'msg off'); return; }
+    $('text').value = '';
+  };
+</script>
+</body>
+</html>
