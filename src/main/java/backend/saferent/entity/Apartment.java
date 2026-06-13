@@ -56,6 +56,23 @@ public class Apartment extends AbstractEntity {
 
     private LocalDate availableFrom;
 
+    private Double latitude;
+    private Double longitude;
+
+    // "Things to know"
+    private String checkInTime;
+    private String checkOutTime;
+    private Integer maxGuests;
+
+    @Column(columnDefinition = "TEXT")
+    private String cancellationPolicy;
+
+    @Column(columnDefinition = "TEXT")
+    private String houseRules;
+
+    private Boolean smokeAlarm;
+    private Boolean securityCameras;
+
     private boolean verified = false;
 
     @Column(name = "rejection_reason", length = 1024)

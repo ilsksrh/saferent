@@ -41,6 +41,17 @@ public class CreateApartmentRequest {
 
     private LocalDate availableFrom;
 
+    private Double latitude;
+    private Double longitude;
+
+    private String checkInTime;
+    private String checkOutTime;
+    private Integer maxGuests;
+    private String cancellationPolicy;
+    private String houseRules;
+    private Boolean smokeAlarm;
+    private Boolean securityCameras;
+
     private Boolean verified;
 
     private ApartmentStatus status;

@@ -27,4 +27,11 @@ public class CreateReviewRequest {
 
     @Size(max = 1000, message = "Comment too long")
     private String comment;
+
+    @Min(1) @Max(5) private Short cleanliness;
+    @Min(1) @Max(5) private Short accuracy;
+    @Min(1) @Max(5) private Short checkin;
+    @Min(1) @Max(5) private Short communication;
+    @Min(1) @Max(5) private Short location;
+    @Min(1) @Max(5) private Short value;
 }

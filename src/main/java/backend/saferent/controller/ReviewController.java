@@ -1,6 +1,7 @@
 package backend.saferent.controller;
 
 import backend.saferent.dto.request.review.CreateReviewRequest;
+import backend.saferent.dto.response.review.RatingBreakdownResponse;
 import backend.saferent.dto.response.review.ReviewResponse;
 import backend.saferent.dto.response.review.UserRatingResponse;
 import backend.saferent.service.ReviewService;
@@ -48,5 +49,12 @@ public class ReviewController {
     public ResponseEntity<UserRatingResponse> getRating(
             @PathVariable UUID userId) {
         return ResponseEntity.ok(reviewService.getUserRating(userId));
+    }
+
+    @Operation(summary = "Разбивка рейтинга (звёзды + категории)")
+    @GetMapping("/breakdown/{userId}")
+    public ResponseEntity<RatingBreakdownResponse> getBreakdown(
+            @PathVariable UUID userId) {
+        return ResponseEntity.ok(reviewService.getRatingBreakdown(userId));
     }
 }

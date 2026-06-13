@@ -28,5 +28,12 @@ public class ReviewResponse {
     private Short rating;
     private String comment;
 
+    private Short cleanliness;
+    private Short accuracy;
+    private Short checkin;
+    private Short communication;
+    private Short location;
+    private Short value;
+
     private LocalDateTime createdAt;
 }

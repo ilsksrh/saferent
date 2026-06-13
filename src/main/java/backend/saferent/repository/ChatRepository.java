@@ -17,6 +17,8 @@ public interface ChatRepository extends JpaRepository<Chat, UUID> {
             User tenant, User landlord, Apartment apartment
     );
 
+    Optional<Chat> findByTenantAndLandlordAndApartmentIsNull(User tenant, User landlord);
+
     @Query("SELECT c FROM Chat c WHERE c.tenant = :user OR c.landlord = :user")
     List<Chat> findAllByUser(@Param("user") User user);
 }

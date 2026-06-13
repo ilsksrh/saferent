@@ -1,6 +1,7 @@
 package backend.saferent.service.impl;
 
 import backend.saferent.dto.request.review.CreateReviewRequest;
+import backend.saferent.dto.response.review.RatingBreakdownResponse;
 import backend.saferent.dto.response.review.ReviewResponse;
 import backend.saferent.dto.response.review.UserRatingResponse;
 import backend.saferent.entity.Contract;
@@ -21,7 +22,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -90,6 +93,12 @@ public class ReviewServiceImpl implements ReviewService {
                 .targetUser(targetUser)
                 .rating(request.getRating())
                 .comment(request.getComment())
+                .cleanliness(request.getCleanliness())
+                .accuracy(request.getAccuracy())
+                .checkin(request.getCheckin())
+                .communication(request.getCommunication())
+                .location(request.getLocation())
+                .value(request.getValue())
                 .build();
 
         Review saved = reviewRepository.save(review);
@@ -159,5 +168,55 @@ public class ReviewServiceImpl implements ReviewService {
                 .totalReviews(total)
                 .ratingLabel(label)
                 .build();
+    }
+
+    @Override
+    public RatingBreakdownResponse getRatingBreakdown(UUID userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User not found"));
+
+        List<Review> reviews = reviewRepository.findByTargetUserOrderByCreatedAtDesc(user);
+        int total = reviews.size();
+
+        int[] stars = new int[6]; // index 1..5
+        double sum = 0;
+        for (Review r : reviews) {
+            if (r.getRating() != null) {
+                stars[r.getRating()]++;
+                sum += r.getRating();
+            }
+        }
+        double avg = total > 0 ? sum / total : 0.0;
+
+        String label;
+        if (avg >= 4.5)      label = "Excellent";
+        else if (avg >= 3.5) label = "Good";
+        else if (avg >= 2.5) label = "Average";
+        else if (avg > 0)    label = "Poor";
+        else                 label = "No reviews yet";
+
+        return RatingBreakdownResponse.builder()
+                .userId(user.getId())
+                .userName(user.getName())
+                .averageRating(Math.round(avg * 10.0) / 10.0)
+                .totalReviews(total)
+                .ratingLabel(label)
+                .star5(stars[5]).star4(stars[4]).star3(stars[3]).star2(stars[2]).star1(stars[1])
+                .cleanliness(categoryAvg(reviews, Review::getCleanliness))
+                .accuracy(categoryAvg(reviews, Review::getAccuracy))
+                .checkin(categoryAvg(reviews, Review::getCheckin))
+                .communication(categoryAvg(reviews, Review::getCommunication))
+                .location(categoryAvg(reviews, Review::getLocation))
+                .value(categoryAvg(reviews, Review::getValue))
+                .build();
+    }
+
+    private Double categoryAvg(List<Review> reviews, Function<Review, Short> getter) {
+        var stats = reviews.stream()
+                .map(getter)
+                .filter(Objects::nonNull)
+                .mapToInt(Short::intValue)
+                .average();
+        return stats.isPresent() ? Math.round(stats.getAsDouble() * 10.0) / 10.0 : null;
     }
 }

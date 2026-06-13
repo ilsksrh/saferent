@@ -20,4 +20,13 @@ public class UpdateUserRequest {
 
     @Size(max = 1024, message = "URL аватара слишком длинный")
     private String avatarUrl;
+
+    @Size(max = 60)
+    private String city;
+
+    @Size(max = 120)
+    private String languages;
+
+    @Size(max = 500)
+    private String bio;
 }

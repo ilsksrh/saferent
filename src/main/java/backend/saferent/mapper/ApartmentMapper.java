@@ -33,6 +33,15 @@ public class ApartmentMapper {
                 .area(request.getArea())
                 .rooms(request.getRooms())
                 .availableFrom(request.getAvailableFrom())
+                .latitude(request.getLatitude())
+                .longitude(request.getLongitude())
+                .checkInTime(request.getCheckInTime())
+                .checkOutTime(request.getCheckOutTime())
+                .maxGuests(request.getMaxGuests())
+                .cancellationPolicy(request.getCancellationPolicy())
+                .houseRules(request.getHouseRules())
+                .smokeAlarm(request.getSmokeAlarm())
+                .securityCameras(request.getSecurityCameras())
                 .verified(request.getVerified() != null ? request.getVerified() : false)
                 .status(request.getStatus() != null ? request.getStatus() : ApartmentStatus.ACTIVE)
                 .build();
@@ -46,6 +55,15 @@ public class ApartmentMapper {
         if (request.getArea() != null) apartment.setArea(request.getArea());
         if (request.getRooms() != null) apartment.setRooms(request.getRooms());
         if (request.getAvailableFrom() != null) apartment.setAvailableFrom(request.getAvailableFrom());
+        if (request.getLatitude() != null) apartment.setLatitude(request.getLatitude());
+        if (request.getLongitude() != null) apartment.setLongitude(request.getLongitude());
+        if (request.getCheckInTime() != null) apartment.setCheckInTime(request.getCheckInTime());
+        if (request.getCheckOutTime() != null) apartment.setCheckOutTime(request.getCheckOutTime());
+        if (request.getMaxGuests() != null) apartment.setMaxGuests(request.getMaxGuests());
+        if (request.getCancellationPolicy() != null) apartment.setCancellationPolicy(request.getCancellationPolicy());
+        if (request.getHouseRules() != null) apartment.setHouseRules(request.getHouseRules());
+        if (request.getSmokeAlarm() != null) apartment.setSmokeAlarm(request.getSmokeAlarm());
+        if (request.getSecurityCameras() != null) apartment.setSecurityCameras(request.getSecurityCameras());
         if (request.getVerified() != null) apartment.setVerified(request.getVerified());
         if (request.getStatus() != null) apartment.setStatus(request.getStatus());
         return apartment;
@@ -80,6 +98,15 @@ public class ApartmentMapper {
                 .area(apartment.getArea())
                 .rooms(apartment.getRooms())
                 .availableFrom(apartment.getAvailableFrom())
+                .latitude(apartment.getLatitude())
+                .longitude(apartment.getLongitude())
+                .checkInTime(apartment.getCheckInTime())
+                .checkOutTime(apartment.getCheckOutTime())
+                .maxGuests(apartment.getMaxGuests())
+                .cancellationPolicy(apartment.getCancellationPolicy())
+                .houseRules(apartment.getHouseRules())
+                .smokeAlarm(apartment.getSmokeAlarm())
+                .securityCameras(apartment.getSecurityCameras())
                 .verified(apartment.isVerified())
                 .rejectionReason(apartment.getRejectionReason())
                 .rejectedAt(apartment.getRejectedAt())

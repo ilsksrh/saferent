@@ -28,6 +28,8 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     List<User> findByNameContainingIgnoreCase(String namePart);
 
+    List<User> findByPreferredRoleAndNameContainingIgnoreCase(PreferredRole role, String namePart);
+
     @Query("SELECT u FROM User u WHERE LOWER(u.name) LIKE LOWER(CONCAT('%', :q, '%')) " +
            "OR u.phone LIKE CONCAT('%', :q, '%') " +
            "OR LOWER(u.email) LIKE LOWER(CONCAT('%', :q, '%'))")

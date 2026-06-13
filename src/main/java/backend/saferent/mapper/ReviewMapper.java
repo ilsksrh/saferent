@@ -18,6 +18,12 @@ public class ReviewMapper {
                 .targetUserName(r.getTargetUser().getName())
                 .rating(r.getRating())
                 .comment(r.getComment())
+                .cleanliness(r.getCleanliness())
+                .accuracy(r.getAccuracy())
+                .checkin(r.getCheckin())
+                .communication(r.getCommunication())
+                .location(r.getLocation())
+                .value(r.getValue())
                 .createdAt(r.getCreatedAt())
                 .build();
     }

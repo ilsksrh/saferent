@@ -10,6 +10,8 @@ public interface ChatService {
 
     ChatResponse getOrCreateChat(UUID tenantId, UUID landlordId, UUID apartmentId);
 
+    ChatResponse getOrCreateDirectChat(UUID landlordId);
+
     List<ChatResponse> getMyChats();
 
     MessageResponse sendMessage(UUID chatId, String text);

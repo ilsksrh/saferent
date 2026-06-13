@@ -27,6 +27,9 @@ public class UserMapper {
         if (request.getPreferredRole() != null) user.setPreferredRole(request.getPreferredRole());
         if (request.getEgovId() != null)       user.setEgovId(request.getEgovId());
         if (request.getAvatarUrl() != null)    user.setAvatarUrl(request.getAvatarUrl());
+        if (request.getCity() != null)         user.setCity(request.getCity());
+        if (request.getLanguages() != null)    user.setLanguages(request.getLanguages());
+        if (request.getBio() != null)          user.setBio(request.getBio());
         return user;
     }
 
@@ -41,6 +44,9 @@ public class UserMapper {
                 .verified(user.isVerified())
                 .admin(user.isAdmin())
                 .avatarUrl(user.getAvatarUrl())
+                .city(user.getCity())
+                .languages(user.getLanguages())
+                .bio(user.getBio())
                 .lastLoginAt(user.getLastLoginAt())
                 .createdAt(user.getCreatedAt())
                 .updatedAt(user.getUpdatedAt())

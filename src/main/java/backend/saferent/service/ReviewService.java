@@ -1,6 +1,7 @@
 package backend.saferent.service;
 
 import backend.saferent.dto.request.review.CreateReviewRequest;
+import backend.saferent.dto.response.review.RatingBreakdownResponse;
 import backend.saferent.dto.response.review.ReviewResponse;
 import backend.saferent.dto.response.review.UserRatingResponse;
 
@@ -16,4 +17,6 @@ public interface ReviewService {
     List<ReviewResponse> getReviewsByUser(UUID userId);
 
     UserRatingResponse getUserRating(UUID userId);
+
+    RatingBreakdownResponse getRatingBreakdown(UUID userId);
 }

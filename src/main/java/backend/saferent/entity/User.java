@@ -52,6 +52,16 @@ public class User extends AbstractEntity {
     @Size(max = 50)
     private String loginProvider;
 
+    @Size(max = 60)
+    private String city;
+
+    @Size(max = 120)
+    private String languages;
+
+    @Size(max = 500)
+    @Column(columnDefinition = "TEXT")
+    private String bio;
+
     @OneToMany(mappedBy = "landlord", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Apartment> apartments = new ArrayList<>();
 

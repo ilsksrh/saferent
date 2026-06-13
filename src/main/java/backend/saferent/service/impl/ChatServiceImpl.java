@@ -79,6 +79,27 @@ public class ChatServiceImpl implements ChatService {
         return buildChatResponse(chat, tenant);
     }
 
+    @Override
+    @Transactional
+    public ChatResponse getOrCreateDirectChat(UUID landlordId) {
+        UUID tenantId = securityUtils.getCurrentUserId();
+        if (tenantId.equals(landlordId)) {
+            throw new BadRequestException("Cannot create chat with yourself");
+        }
+
+        User tenant = getUserOrThrow(tenantId);
+        User landlord = getUserOrThrow(landlordId);
+
+        Chat chat = chatRepository
+                .findByTenantAndLandlordAndApartmentIsNull(tenant, landlord)
+                .orElseGet(() -> chatRepository.save(Chat.builder()
+                        .tenant(tenant)
+                        .landlord(landlord)
+                        .build()));
+
+        return buildChatResponse(chat, tenant);
+    }
+
     // ─── Мои чаты ────────────────────────────────────────────────────────
 
     @Override

@@ -45,6 +45,8 @@ public class SecurityConfig {
                                 "/api/v1/districts/{id}",
                                 "/api/v1/reviews/about/**",
                                 "/api/v1/reviews/rating/**",
+                                "/api/v1/reviews/breakdown/**",
+                                "/api/v1/landlords/*/host",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
                                 "/v3/api-docs/**"

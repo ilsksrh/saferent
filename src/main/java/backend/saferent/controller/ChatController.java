@@ -34,6 +34,12 @@ public class ChatController {
         ));
     }
 
+    @Operation(summary = "Создать/получить прямой чат с лэндлордом (по ФИО)")
+    @PostMapping("/direct")
+    public ResponseEntity<ChatResponse> getOrCreateDirect(@RequestParam UUID landlordId) {
+        return ResponseEntity.ok(chatService.getOrCreateDirectChat(landlordId));
+    }
+
     @Operation(summary = "Все мои чаты")
     @GetMapping("/my")
     public ResponseEntity<List<ChatResponse>> getMyChats() {

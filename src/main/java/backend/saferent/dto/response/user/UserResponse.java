@@ -24,6 +24,9 @@ public class UserResponse {
     private boolean verified;
     private String avatarUrl;
     private boolean admin;
+    private String city;
+    private String languages;
+    private String bio;
     private LocalDateTime lastLoginAt;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
