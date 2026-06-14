@@ -18,8 +18,11 @@ public class Message extends AbstractEntity {
     @ManyToOne
     private User sender;
 
-    @NotBlank
+    @Column(columnDefinition = "TEXT")
     private String text;
+
+    @Column(length = 1024)
+    private String imageUrl;
 
     private Boolean isRead;
 }

@@ -39,6 +39,7 @@ public class ChatMapper {
                 .senderId(m.getSender().getId())
                 .senderName(m.getSender().getName())
                 .text(m.getText())
+                .imageUrl(m.getImageUrl())
                 .isRead(m.getIsRead())
                 .createdAt(m.getCreatedAt())
                 .build();

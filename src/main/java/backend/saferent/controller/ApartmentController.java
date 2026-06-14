@@ -126,4 +126,22 @@ public class ApartmentController {
         apartmentService.deletePhoto(id, photoId, currentUser.getId());
         return ResponseEntity.noContent().build();
     }
+
+    @Operation(summary = "Загрузить 360° панораму (3D-тур) → MinIO")
+    @PostMapping(value = "/{id}/panoramas", consumes = "multipart/form-data")
+    public ResponseEntity<ApartmentResponse> uploadPanorama(@PathVariable UUID id,
+                                                            @RequestParam("file") MultipartFile file,
+                                                            @AuthenticationPrincipal User currentUser) {
+        if (currentUser == null) return ResponseEntity.status(401).build();
+        return ResponseEntity.ok(apartmentService.addPanorama(id, file, currentUser.getId()));
+    }
+
+    @Operation(summary = "Удалить 360° панораму")
+    @DeleteMapping("/{id}/panoramas")
+    public ResponseEntity<ApartmentResponse> deletePanorama(@PathVariable UUID id,
+                                                            @RequestParam String url,
+                                                            @AuthenticationPrincipal User currentUser) {
+        if (currentUser == null) return ResponseEntity.status(401).build();
+        return ResponseEntity.ok(apartmentService.removePanorama(id, url, currentUser.getId()));
+    }
 }

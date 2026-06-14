@@ -30,6 +30,7 @@ public class ApartmentMapper {
                 .description(request.getDescription())
                 .address(request.getAddress())
                 .price(request.getPrice())
+                .depositAmount(request.getDepositAmount())
                 .area(request.getArea())
                 .rooms(request.getRooms())
                 .availableFrom(request.getAvailableFrom())
@@ -42,6 +43,7 @@ public class ApartmentMapper {
                 .houseRules(request.getHouseRules())
                 .smokeAlarm(request.getSmokeAlarm())
                 .securityCameras(request.getSecurityCameras())
+                .amenities(request.getAmenities() != null ? request.getAmenities() : new java.util.ArrayList<>())
                 .verified(request.getVerified() != null ? request.getVerified() : false)
                 .status(request.getStatus() != null ? request.getStatus() : ApartmentStatus.ACTIVE)
                 .build();
@@ -52,6 +54,7 @@ public class ApartmentMapper {
         if (request.getDescription() != null) apartment.setDescription(request.getDescription());
         if (request.getAddress() != null) apartment.setAddress(request.getAddress());
         if (request.getPrice() != null) apartment.setPrice(request.getPrice());
+        if (request.getDepositAmount() != null) apartment.setDepositAmount(request.getDepositAmount());
         if (request.getArea() != null) apartment.setArea(request.getArea());
         if (request.getRooms() != null) apartment.setRooms(request.getRooms());
         if (request.getAvailableFrom() != null) apartment.setAvailableFrom(request.getAvailableFrom());
@@ -64,6 +67,7 @@ public class ApartmentMapper {
         if (request.getHouseRules() != null) apartment.setHouseRules(request.getHouseRules());
         if (request.getSmokeAlarm() != null) apartment.setSmokeAlarm(request.getSmokeAlarm());
         if (request.getSecurityCameras() != null) apartment.setSecurityCameras(request.getSecurityCameras());
+        if (request.getAmenities() != null) apartment.setAmenities(request.getAmenities());
         if (request.getVerified() != null) apartment.setVerified(request.getVerified());
         if (request.getStatus() != null) apartment.setStatus(request.getStatus());
         return apartment;
@@ -93,6 +97,7 @@ public class ApartmentMapper {
                 .description(apartment.getDescription())
                 .address(apartment.getAddress())
                 .price(apartment.getPrice())
+                .depositAmount(apartment.getDepositAmount())
                 .photoUrls(photoUrls)
                 .photos(photos)
                 .area(apartment.getArea())
@@ -107,6 +112,8 @@ public class ApartmentMapper {
                 .houseRules(apartment.getHouseRules())
                 .smokeAlarm(apartment.getSmokeAlarm())
                 .securityCameras(apartment.getSecurityCameras())
+                .amenities(apartment.getAmenities())
+                .panoramaUrls(apartment.getPanoramaUrls())
                 .verified(apartment.isVerified())
                 .rejectionReason(apartment.getRejectionReason())
                 .rejectedAt(apartment.getRejectedAt())

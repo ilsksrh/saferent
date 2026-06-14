@@ -22,6 +22,7 @@ public class MessageResponse {
     private String senderName;
 
     private String text;
+    private String imageUrl;
     private Boolean isRead;
 
     private LocalDateTime createdAt;

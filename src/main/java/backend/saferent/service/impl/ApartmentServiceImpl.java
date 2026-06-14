@@ -203,6 +203,39 @@ public class ApartmentServiceImpl implements ApartmentService {
         apartmentPhotoRepository.delete(photo);
     }
 
+    @Override
+    @Transactional
+    public ApartmentResponse addPanorama(UUID apartmentId, MultipartFile file, UUID currentUserId) {
+        Apartment apartment = apartmentRepository.findById(apartmentId)
+                .orElseThrow(() -> new NotFoundException("Квартира не найдена"));
+
+        if (!isOwnerOrAdmin(apartment, currentUserId)) {
+            throw new BadRequestException("Только владелец или админ может загружать панорамы");
+        }
+
+        String url = fileStorageService.upload(file, "apartments/" + apartmentId + "/panorama");
+        apartment.getPanoramaUrls().add(url);
+        apartmentRepository.save(apartment);
+
+        return apartmentMapper.toResponse(apartment);
+    }
+
+    @Override
+    @Transactional
+    public ApartmentResponse removePanorama(UUID apartmentId, String url, UUID currentUserId) {
+        Apartment apartment = apartmentRepository.findById(apartmentId)
+                .orElseThrow(() -> new NotFoundException("Квартира не найдена"));
+
+        if (!isOwnerOrAdmin(apartment, currentUserId)) {
+            throw new BadRequestException("Только владелец или админ может удалять панорамы");
+        }
+
+        apartment.getPanoramaUrls().remove(url);
+        apartmentRepository.save(apartment);
+
+        return apartmentMapper.toResponse(apartment);
+    }
+
     private boolean isOwnerOrAdmin(Apartment apartment, UUID currentUserId) {
         if (apartment.getLandlord() != null
                 && apartment.getLandlord().getId().equals(currentUserId)) {

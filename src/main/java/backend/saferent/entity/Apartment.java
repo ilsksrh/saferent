@@ -8,6 +8,8 @@ import lombok.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Entity
@@ -56,6 +58,9 @@ public class Apartment extends AbstractEntity {
 
     private LocalDate availableFrom;
 
+    @Column(precision = 12, scale = 2)
+    private BigDecimal depositAmount;
+
     private Double latitude;
     private Double longitude;
 
@@ -72,6 +77,16 @@ public class Apartment extends AbstractEntity {
 
     private Boolean smokeAlarm;
     private Boolean securityCameras;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "apartment_amenities", joinColumns = @JoinColumn(name = "apartment_id"))
+    @Column(name = "amenity")
+    private List<String> amenities = new ArrayList<>();
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "apartment_panoramas", joinColumns = @JoinColumn(name = "apartment_id"))
+    @Column(name = "url", length = 1024)
+    private List<String> panoramaUrls = new ArrayList<>();
 
     private boolean verified = false;
 

@@ -46,10 +46,11 @@ public class ReviewServiceImpl implements ReviewService {
                 .findById(request.getContractId())
                 .orElseThrow(() -> new NotFoundException("Contract not found"));
 
-        if (contract.getStatus() != ContractStatus.COMPLETED) {
+        if (contract.getStatus() != ContractStatus.ACTIVE
+                && contract.getStatus() != ContractStatus.COMPLETED) {
             throw new BadRequestException(
-                    "Review can only be left after contract is COMPLETED. " +
-                            "Current status: " + contract.getStatus()
+                    "Отзыв можно оставить только если вы живёте или жили в этой квартире " +
+                            "(договор ACTIVE или COMPLETED). Текущий статус: " + contract.getStatus()
             );
         }
 

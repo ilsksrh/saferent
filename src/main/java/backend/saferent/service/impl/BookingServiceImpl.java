@@ -245,7 +245,9 @@ public class BookingServiceImpl implements BookingService {
                 .startDate(booking.getStartDate())
                 .endDate(booking.getEndDate())
                 .rentAmount(booking.getApartment().getPrice())
-                .depositAmount(booking.getApartment().getPrice())
+                .depositAmount(booking.getApartment().getDepositAmount() != null
+                        ? booking.getApartment().getDepositAmount()
+                        : booking.getApartment().getPrice())
                 .status(ContractStatus.DRAFT)
                 .terms("Standard SafeRent rental agreement.")
                 .build();

@@ -6,6 +6,7 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -32,6 +33,9 @@ public class CreateApartmentRequest {
     @DecimalMin("0.0")
     private BigDecimal price;
 
+    @DecimalMin("0.0")
+    private BigDecimal depositAmount;
+
     @NotNull(message = "Площадь обязательна")
     @DecimalMin("0.0")
     private BigDecimal area;
@@ -51,6 +55,7 @@ public class CreateApartmentRequest {
     private String houseRules;
     private Boolean smokeAlarm;
     private Boolean securityCameras;
+    private List<String> amenities;
 
     private Boolean verified;
 

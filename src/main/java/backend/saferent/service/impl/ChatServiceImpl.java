@@ -116,7 +116,8 @@ public class ChatServiceImpl implements ChatService {
     @Override
     @Transactional
     public MessageResponse sendMessage(UUID chatId,
-                                       String text) {
+                                       String text,
+                                       String imageUrl) {
 
         UUID senderId = securityUtils.getCurrentUserId();
         Chat chat = chatRepository.findById(chatId)
@@ -131,9 +132,11 @@ public class ChatServiceImpl implements ChatService {
             throw new BadRequestException("You are not a member of this chat");
         }
 
-        if (text == null || text.isBlank()) {
-            throw new BadRequestException("Message text cannot be empty");
+        if ((text == null || text.isBlank()) && (imageUrl == null || imageUrl.isBlank())) {
+            throw new BadRequestException("Сообщение не может быть пустым");
         }
+        // Пустая строка, а не null — в БД колонка text имеет ограничение NOT NULL
+        String trimmed = (text != null && !text.isBlank()) ? text.trim() : "";
 
         List<Message> unread = messageRepository.findUnreadMessages(chat, sender);
         if (!unread.isEmpty()) {
@@ -145,7 +148,8 @@ public class ChatServiceImpl implements ChatService {
         Message message = Message.builder()
                 .chat(chat)
                 .sender(sender)
-                .text(text.trim())
+                .text(trimmed)
+                .imageUrl(imageUrl)
                 .isRead(false)
                 .build();
 
@@ -153,12 +157,14 @@ public class ChatServiceImpl implements ChatService {
                 ? chat.getLandlord().getId()
                 : chat.getTenant().getId();
 
+        String preview = !trimmed.isEmpty()
+                ? (trimmed.length() > 50 ? trimmed.substring(0, 50) + "..." : trimmed)
+                : "📷 Фото";
+
         notificationService.create(
                 recipientId,
                 "New message from " + sender.getName(),
-                text.length() > 50
-                        ? text.substring(0, 50) + "..."
-                        : text,
+                preview,
                 NotificationType.MESSAGE,
                 chat.getId(),
                 "CHAT"

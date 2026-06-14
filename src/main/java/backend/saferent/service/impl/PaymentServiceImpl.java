@@ -23,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -49,6 +50,11 @@ public class PaymentServiceImpl implements PaymentService {
 
         if (!contract.getTenant().getId().equals(payerId)) {
             throw new BadRequestException("Only the tenant can pay the deposit");
+        }
+
+        if (contract.getDepositAmount() == null
+                || contract.getDepositAmount().compareTo(BigDecimal.ZERO) == 0) {
+            throw new BadRequestException("Для этого договора депозит не требуется");
         }
 
         boolean alreadyPaid = paymentRepository.existsByContractAndTypeAndStatus(
@@ -116,7 +122,9 @@ public class PaymentServiceImpl implements PaymentService {
             throw new BadRequestException("Only the tenant can pay rent");
         }
 
-        boolean depositPaid = paymentRepository.existsByContractAndTypeAndStatus(
+        boolean noDeposit = contract.getDepositAmount() == null
+                || contract.getDepositAmount().compareTo(BigDecimal.ZERO) == 0;
+        boolean depositPaid = noDeposit || paymentRepository.existsByContractAndTypeAndStatus(
                 contract, PaymentType.DEPOSIT, PaymentStatus.PAID
         );
         if (!depositPaid) {
@@ -192,10 +200,16 @@ public class PaymentServiceImpl implements PaymentService {
                 .findByContractAndType(contract, PaymentType.DEPOSIT)
                 .orElse(null);
 
+        boolean noDeposit = contract.getDepositAmount() == null
+                || contract.getDepositAmount().compareTo(BigDecimal.ZERO) == 0;
+
         String destination;
         String note;
 
-        if (deposit == null) {
+        if (noDeposit) {
+            destination = "NOT_REQUIRED";
+            note = "Депозит не требуется для этого договора.";
+        } else if (deposit == null) {
             destination = "NOT_PAID";
             note = "Deposit has not been paid yet";
         } else if (deposit.getStatus() == PaymentStatus.REFUNDED) {
@@ -213,8 +227,8 @@ public class PaymentServiceImpl implements PaymentService {
                     "Will be returned to tenant after successful checkout.";
         }
 
-        boolean depositPaid = deposit != null
-                && deposit.getStatus() == PaymentStatus.PAID;
+        boolean depositPaid = noDeposit
+                || (deposit != null && deposit.getStatus() == PaymentStatus.PAID);
 
         return EscrowStatusResponse.builder()
                 .contractId(contract.getId())

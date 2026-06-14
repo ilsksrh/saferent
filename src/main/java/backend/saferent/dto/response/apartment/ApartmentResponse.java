@@ -25,6 +25,7 @@ public class ApartmentResponse {
     private String description;
     private String address;
     private BigDecimal price;
+    private BigDecimal depositAmount;
     private BigDecimal area;
     private Short rooms;
     private LocalDate availableFrom;
@@ -37,6 +38,8 @@ public class ApartmentResponse {
     private String houseRules;
     private Boolean smokeAlarm;
     private Boolean securityCameras;
+    private List<String> amenities;
+    private List<String> panoramaUrls;
     private Boolean verified;
     private String rejectionReason;
     private LocalDateTime rejectedAt;

@@ -5,12 +5,14 @@ import backend.saferent.dto.request.chat.SendMessageRequest;
 import backend.saferent.dto.response.chat.ChatResponse;
 import backend.saferent.dto.response.chat.MessageResponse;
 import backend.saferent.service.ChatService;
+import backend.saferent.service.FileStorageService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.UUID;
@@ -22,6 +24,7 @@ import java.util.UUID;
 public class ChatController {
 
     private final ChatService chatService;
+    private final FileStorageService fileStorageService;
 
     @Operation(summary = "Создать или получить существующий чат")
     @PostMapping
@@ -52,8 +55,18 @@ public class ChatController {
             @PathVariable UUID chatId,
             @Valid @RequestBody SendMessageRequest request) {
         return ResponseEntity.ok(
-                chatService.sendMessage(chatId, request.getText())
+                chatService.sendMessage(chatId, request.getText(), null)
         );
+    }
+
+    @Operation(summary = "Отправить сообщение с фото (multipart → MinIO)")
+    @PostMapping(value = "/{chatId}/messages/image", consumes = "multipart/form-data")
+    public ResponseEntity<MessageResponse> sendImageMessage(
+            @PathVariable UUID chatId,
+            @RequestParam("file") MultipartFile file,
+            @RequestParam(required = false) String text) {
+        String url = fileStorageService.upload(file, "chats/" + chatId);
+        return ResponseEntity.ok(chatService.sendMessage(chatId, text, url));
     }
 
     @Operation(summary = "История сообщений")

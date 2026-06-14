@@ -31,4 +31,8 @@ public interface ApartmentService {
     ApartmentResponse addPhoto(UUID apartmentId, MultipartFile file, UUID currentUserId);
 
     void deletePhoto(UUID apartmentId, UUID photoId, UUID currentUserId);
+
+    ApartmentResponse addPanorama(UUID apartmentId, MultipartFile file, UUID currentUserId);
+
+    ApartmentResponse removePanorama(UUID apartmentId, String url, UUID currentUserId);
 }

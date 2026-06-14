@@ -14,7 +14,7 @@ public interface ChatService {
 
     List<ChatResponse> getMyChats();
 
-    MessageResponse sendMessage(UUID chatId, String text);
+    MessageResponse sendMessage(UUID chatId, String text, String imageUrl);
 
     List<MessageResponse> getMessages(UUID chatId);
 

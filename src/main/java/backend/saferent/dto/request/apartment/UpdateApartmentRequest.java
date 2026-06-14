@@ -8,6 +8,7 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 
 @Data
 public class UpdateApartmentRequest {
@@ -22,6 +23,9 @@ public class UpdateApartmentRequest {
 
     @DecimalMin("0.0")
     private BigDecimal price;
+
+    @DecimalMin("0.0")
+    private BigDecimal depositAmount;
 
     @DecimalMin("0.0")
     private BigDecimal area;
@@ -41,6 +45,7 @@ public class UpdateApartmentRequest {
     private String houseRules;
     private Boolean smokeAlarm;
     private Boolean securityCameras;
+    private List<String> amenities;
 
     private Boolean verified;
 
