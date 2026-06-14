@@ -4,5 +4,6 @@ public enum PaymentMethod {
     KASPI,
     HALYK,
     CARD,
+    WALLET,
     OTHER
 }

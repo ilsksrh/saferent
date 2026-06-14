@@ -1,7 +1,10 @@
 package backend.saferent.controller;
 
+import backend.saferent.dto.response.analytics.LandlordAnalyticsResponse;
 import backend.saferent.dto.response.review.UserRatingResponse;
 import backend.saferent.dto.response.user.HostCardResponse;
+import backend.saferent.service.LandlordAnalyticsService;
+import org.springframework.security.access.prepost.PreAuthorize;
 import backend.saferent.dto.response.user.LandlordProfileResponse;
 import backend.saferent.dto.response.user.LandlordApartmentSummary;
 import backend.saferent.dto.response.user.LandlordSearchResponse;
@@ -32,6 +35,14 @@ public class LandlordController {
     private final LandlordService landlordService;
     private final UserRepository userRepository;
     private final ReviewService reviewService;
+    private final LandlordAnalyticsService landlordAnalyticsService;
+
+    @Operation(summary = "Аналитика дохода лэндлорда (дашборд)")
+    @PreAuthorize("hasRole('LANDLORD')")
+    @GetMapping("/me/analytics")
+    public ResponseEntity<LandlordAnalyticsResponse> myAnalytics() {
+        return ResponseEntity.ok(landlordAnalyticsService.getMyAnalytics());
+    }
 
     @Operation(summary = "Карточка хозяина (Meet your host)")
     @GetMapping("/{userId}/host")

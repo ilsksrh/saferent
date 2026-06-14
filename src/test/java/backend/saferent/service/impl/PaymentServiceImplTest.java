@@ -18,6 +18,7 @@ import backend.saferent.repository.ContractRepository;
 import backend.saferent.repository.PaymentRepository;
 import backend.saferent.service.NotificationService;
 import backend.saferent.service.RentScheduleService;
+import backend.saferent.service.WalletService;
 import backend.saferent.util.SecurityUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -44,6 +45,7 @@ class PaymentServiceImplTest {
     @Mock PaymentMapper paymentMapper;
     @Mock NotificationService notificationService;
     @Mock RentScheduleService rentScheduleService;
+    @Mock WalletService walletService;
     @Mock SecurityUtils securityUtils;
 
     @InjectMocks PaymentServiceImpl service;

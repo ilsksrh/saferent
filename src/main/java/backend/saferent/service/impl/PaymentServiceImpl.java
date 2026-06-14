@@ -15,9 +15,11 @@ import backend.saferent.exception.NotFoundException;
 import backend.saferent.mapper.PaymentMapper;
 import backend.saferent.repository.ContractRepository;
 import backend.saferent.repository.PaymentRepository;
+import backend.saferent.entity.enums.PaymentMethod;
 import backend.saferent.service.NotificationService;
 import backend.saferent.service.PaymentService;
 import backend.saferent.service.RentScheduleService;
+import backend.saferent.service.WalletService;
 import backend.saferent.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -38,6 +40,7 @@ public class PaymentServiceImpl implements PaymentService {
     private final PaymentMapper       paymentMapper;
     private final NotificationService notificationService;
     private final RentScheduleService rentScheduleService;
+    private final WalletService       walletService;
     private final SecurityUtils       securityUtils;
 
 
@@ -140,6 +143,11 @@ public class PaymentServiceImpl implements PaymentService {
             );
         }
 
+        // Оплата с баланса кошелька — списываем у арендатора (бросит, если не хватает)
+        if (request.getMethod() == PaymentMethod.WALLET) {
+            walletService.chargeTenantForRent(contract, request.getAmount());
+        }
+
         Payment payment = Payment.builder()
                 .contract(contract)
                 .type(PaymentType.RENT)
@@ -153,6 +161,9 @@ public class PaymentServiceImpl implements PaymentService {
         Payment saved = paymentRepository.save(payment);
 
         rentScheduleService.markEarliestPaid(contract, saved);
+
+        // Доход арендодателя зачисляется на его кошелёк
+        walletService.recordRentIncome(contract, request.getAmount());
 
         notificationService.create(
                 contract.getLandlord().getId(),
@@ -269,6 +280,8 @@ public class PaymentServiceImpl implements PaymentService {
 
         Payment saved = paymentRepository.save(deposit);
 
+        walletService.refundDepositToTenant(contract);
+
         notificationService.create(
                 contract.getTenant().getId(),
                 "Deposit Returned!",
@@ -308,6 +321,8 @@ public class PaymentServiceImpl implements PaymentService {
         contractRepository.save(contract);
 
         Payment saved = paymentRepository.save(deposit);
+
+        walletService.compensateLandlord(contract);
 
         notificationService.create(
                 contract.getLandlord().getId(),

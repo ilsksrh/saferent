@@ -14,7 +14,10 @@ import backend.saferent.mapper.UserMapper;
 import backend.saferent.repository.ContractRepository;
 import backend.saferent.repository.PaymentRepository;
 import backend.saferent.repository.UserRepository;
+import backend.saferent.service.WalletService;
 import backend.saferent.util.SecurityUtils;
+
+import java.math.BigDecimal;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -42,6 +45,19 @@ public class AdminController {
     private final SecurityUtils securityUtils;
     private final ContractRepository contractRepository;
     private final PaymentRepository paymentRepository;
+    private final WalletService walletService;
+
+    @Operation(summary = "Начислить бонус на кошелёк пользователя (mock)")
+    @PostMapping("/wallet/{userId}/bonus")
+    public ResponseEntity<Void> grantBonus(@PathVariable UUID userId,
+                                           @RequestBody Map<String, Object> body) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User not found"));
+        BigDecimal amount = new BigDecimal(String.valueOf(body.get("amount")));
+        String reason = body.get("reason") != null ? String.valueOf(body.get("reason")) : null;
+        walletService.grantBonus(user, amount, reason);
+        return ResponseEntity.ok().build();
+    }
 
     @Operation(summary = "Список пользователей (paged)")
     @GetMapping("/users")

@@ -36,6 +36,8 @@ public class DataLoader implements CommandLineRunner {
     private final PaymentRepository paymentRepository;
     private final ReviewRepository reviewRepository;
     private final NotificationRepository notificationRepository;
+    private final WalletRepository walletRepository;
+    private final WalletTransactionRepository walletTransactionRepository;
     private final PasswordEncoder passwordEncoder;
     private final ApartmentSearchService apartmentSearchService;
 
@@ -261,10 +263,47 @@ public class DataLoader implements CommandLineRunner {
                 .title("Новое сообщение").message("Аскар Бекенов: 'Конечно, когда удобно?'")
                 .type(NotificationType.MESSAGE).isRead(false).build());
 
+        // === WALLETS + LEDGER (демо-данные для дашборда лэндлорда) ===
+        Wallet w1 = wallet(landlord1);
+        for (int m = 4; m >= 0; m--) {
+            LocalDateTime when = LocalDateTime.now().minusMonths(m).withDayOfMonth(5).withHour(10);
+            seedTxn(w1, WalletTxnType.RENT_INCOME, apt2.getPrice(), true, contract1, apt2,
+                    "Доход от аренды: " + apt2.getTitle(), when);
+            seedTxn(w1, WalletTxnType.RENT_INCOME, apt6.getPrice(), true, null, apt6,
+                    "Доход от аренды: " + apt6.getTitle(), when.plusDays(1));
+        }
+        seedTxn(w1, WalletTxnType.DAMAGE_COMPENSATION, new BigDecimal("90000"), true, null, apt1,
+                "Компенсация за ущерб: " + apt1.getTitle(),
+                LocalDateTime.now().minusMonths(1).withDayOfMonth(20));
+        seedTxn(w1, WalletTxnType.BONUS, new BigDecimal("25000"), true, null, null,
+                "Superhost бонус", LocalDateTime.now().minusDays(2));
+
+        seedTxn(wallet(tenant1), WalletTxnType.TOP_UP, new BigDecimal("600000"), true, null, null,
+                "Пополнение (Kaspi)", LocalDateTime.now().minusDays(3));
+        seedTxn(wallet(tenant2), WalletTxnType.TOP_UP, new BigDecimal("400000"), true, null, null,
+                "Пополнение (Kaspi)", LocalDateTime.now().minusDays(2));
+
         log.info("DataLoader: seeded {} users, {} districts, {} apartments",
                 userRepository.count(), districtRepository.count(), apartmentRepository.count());
         log.info("DataLoader: TEST CREDENTIALS — admin: +77000000000, landlord: +77011111111, tenant: +77044444444 (password: password123)");
 
         apartmentSearchService.reindexAll();
+    }
+
+    private Wallet wallet(User u) {
+        return walletRepository.findByUser(u).orElseGet(() ->
+                walletRepository.save(Wallet.builder().user(u).balance(BigDecimal.ZERO).build()));
+    }
+
+    private void seedTxn(Wallet w, WalletTxnType type, BigDecimal absAmount, boolean credit,
+                         Contract c, Apartment a, String desc, LocalDateTime when) {
+        BigDecimal signed = credit ? absAmount : absAmount.negate();
+        w.setBalance(w.getBalance().add(signed));
+        walletRepository.save(w);
+        WalletTransaction t = walletTransactionRepository.save(WalletTransaction.builder()
+                .wallet(w).type(type).amount(signed).balanceAfter(w.getBalance())
+                .contract(c).apartment(a).description(desc).build());
+        t.setCreatedAt(when);
+        walletTransactionRepository.save(t);
     }
 }
