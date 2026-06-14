@@ -68,6 +68,11 @@
 
 ---
 
+## Backlog (новые запросы)
+- **Чат: вложения и эмодзи** — отправка/загрузка фото в сообщениях (через MinIO) +
+  эмодзи-пикер. Бэкенд: поле `imageUrl` на `Message` + загрузка файла; фронт:
+  кнопка скрепки + emoji-picker в `ChatDetailPage`.
+
 ## Проверка (по фазам)
 Запуск: `docker compose -f docker-compose.dev.yml up -d` + `cd D:\saferent-web && npm run dev`.
 Тест-аккаунты (`password123`): admin `+77000000000`, landlord `+77011111111`,

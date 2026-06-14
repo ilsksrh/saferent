@@ -29,6 +29,12 @@ public class ContractMapper {
                 .tenantSigned(c.getESignatureTenant() != null)
                 .landlordSigned(c.getESignatureLandlord() != null)
                 .signedAt(c.getSignedAt())
+                .checkinDeadline(c.getCheckinDeadline())
+                .checkinConfirmedAt(c.getCheckinConfirmedAt())
+                .checkoutDeadline(c.getCheckoutDeadline())
+                .inspectionResult(c.getInspectionResult())
+                .inspectionAvgSsim(c.getInspectionAvgSsim())
+                .inspectionDecidedAt(c.getInspectionDecidedAt())
                 .createdAt(c.getCreatedAt())
                 .updatedAt(c.getUpdatedAt())
                 .build();

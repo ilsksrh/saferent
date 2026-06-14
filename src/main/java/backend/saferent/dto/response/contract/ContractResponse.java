@@ -45,6 +45,13 @@ public class ContractResponse {
     private boolean landlordSigned;
     private LocalDateTime signedAt;
 
+    private LocalDate checkinDeadline;
+    private LocalDateTime checkinConfirmedAt;
+    private LocalDate checkoutDeadline;
+    private backend.saferent.entity.enums.InspectionResult inspectionResult;
+    private Double inspectionAvgSsim;
+    private LocalDateTime inspectionDecidedAt;
+
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }
