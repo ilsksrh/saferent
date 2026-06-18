@@ -1,5 +1,6 @@
 package backend.saferent.exception;
 
+import backend.saferent.assistant.llm.LlmUnavailableException;
 import backend.saferent.client.AiAnalysisClient;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +18,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(AiAnalysisClient.AiServiceUnavailableException.class)
     public ResponseEntity<Map<String, Object>> handleAiUnavailable(
             AiAnalysisClient.AiServiceUnavailableException ex) {
+        return error(HttpStatus.SERVICE_UNAVAILABLE, ex.getMessage());
+    }
+
+    @ExceptionHandler(LlmUnavailableException.class)
+    public ResponseEntity<Map<String, Object>> handleLlmUnavailable(LlmUnavailableException ex) {
         return error(HttpStatus.SERVICE_UNAVAILABLE, ex.getMessage());
     }
 

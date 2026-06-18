@@ -109,6 +109,9 @@ services:
       MAIL_PORT: 1025
       ELASTICSEARCH_URI: http://elasticsearch:9200
       AI_SERVICE_URL: http://ai-service:8000
+      AI_PROVIDER: ${AI_PROVIDER:-groq}
+      GROQ_API_KEY: ${GROQ_API_KEY:-}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
       # Подключение к MinIO — по внутреннему имени сети,
       # а публичные ссылки на фото остаются на localhost:9000 (их открывает браузер).
       MINIO_ENDPOINT: http://minio:9000
